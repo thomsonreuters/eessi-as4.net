@@ -12,7 +12,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Validators;
-using NLog;
+using log4net;
 using SubmitParty = Eu.EDelivery.AS4.Model.Common.Party;
 using SubmitPartyId = Eu.EDelivery.AS4.Model.Common.PartyId;
 using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -20,6 +20,10 @@ using PModePartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 using AS4Party = Eu.EDelivery.AS4.Model.Core.Party;
 using InvalidOperationException = System.InvalidOperationException;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Common;
+using System.Web;
+using System.Text.RegularExpressions;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -34,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     {
         private readonly Func<string, IDynamicDiscoveryProfile> _resolveDynamicDiscoveryProfile;
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicDiscoveryStep"/> class.
@@ -70,9 +74,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 && messagingContext.Mode == MessagingContextMode.Forward)
             {
                 Logger.Error(
-                    $"{nameof(DynamicDiscoveryStep)} requires an AS4Message when used in a Forward Agent, "
+                    $"{Config.Encode(nameof(DynamicDiscoveryStep))} requires an AS4Message when used in a Forward Agent, "
                     + "please make sure that the ReceivedMessage is deserialized before executing this step."
-                    + $"{Environment.NewLine} Possibly this failure happened because the Transformer of the Forward Agent is still using "
+                    + $"{Config.Encode(Environment.NewLine)} Possibly this failure happened because the Transformer of the Forward Agent is still using "
                     + "the ForwardMessageTransformer instead of the AS4MessageTransformer");
 
                 throw new InvalidOperationException(
@@ -82,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.SendingPMode == null 
                 || messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
-                Logger.Trace($"Skip Dynamic Discovery because SendingPMode {messagingContext.SendingPMode?.Id} is not configured for Dynamic Discovery");
+                Logger.Trace($"Skip Dynamic Discovery because SendingPMode {Config.Encode(messagingContext.SendingPMode?.Id)} is not configured for Dynamic Discovery");
                 return StepResult.Success(messagingContext);
             }
 
@@ -91,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
             IDynamicDiscoveryProfile profile = _resolveDynamicDiscoveryProfile(smpProfile);
-            Logger.Info($"{messagingContext.LogTag} DynamicDiscovery is enabled in SendingPMode - using {profile.GetType().Name}");
+            Logger.Info($"{Config.Encode(messagingContext.LogTag)} DynamicDiscovery is enabled in SendingPMode - using {Config.Encode(profile.GetType().Name)}");
 
             AS4Party toParty = 
                 messagingContext.Mode == MessagingContextMode.Forward
@@ -102,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     messagingContext.SendingPMode?.AllowOverride == true);
 
             DynamicDiscoveryResult result = await DynamicDiscoverSendingPModeAsync(messagingContext.SendingPMode, profile, toParty);
-            Logger.Debug($"SendingPMode {result.CompletedSendingPMode.Id} completed with SMP metadata");
+            Logger.Debug($"SendingPMode {Config.Encode(result.CompletedSendingPMode.Id)} completed with SMP metadata");
 
             messagingContext.SendingPMode = result.CompletedSendingPMode;
             if (messagingContext.SubmitMessage != null && result.OverrideToParty)
@@ -122,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             if (smpProfile == null)
             {
-                Logger.Debug($"SendingPMode doesn't specify DynamicDiscovery.SmpProfile element, using default: {nameof(LocalDynamicDiscoveryProfile)}");
+                Logger.Debug($"SendingPMode doesn't specify DynamicDiscovery.SmpProfile element, using default: {Config.Encode(nameof(LocalDynamicDiscoveryProfile))}");
                 return new LocalDynamicDiscoveryProfile();
             }
 
@@ -130,13 +134,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 Logger.Error(
                     "SendingPMode.DynamicDiscovery.SmpProfile element doesn't have a fully-qualified assembly name "
-                    + $"that can be used to resolve a instance that implements the {nameof(IDynamicDiscoveryProfile)} interface");
+                    + $"that can be used to resolve a instance that implements the {Config.Encode(nameof(IDynamicDiscoveryProfile))} interface");
 
                 throw new InvalidOperationException(
                     "Dynamic Discovery process was not correctly configured");
             }
 
-            Logger.Debug($"SendingPMode specifies a DynamicDiscovery.SmpProfile element, resolve using: {smpProfile}");
+            Logger.Debug($"SendingPMode specifies a DynamicDiscovery.SmpProfile element, resolve using: {Config.Encode(smpProfile)}");
             return GenericTypeBuilder
                 .FromType(smpProfile)
                 .Build<IDynamicDiscoveryProfile>();
@@ -155,7 +159,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 XmlDocument smpMetaData = await RetrieveSmpMetaDataAsync(profile, clonedPMode.DynamicDiscovery, toParty);
                 if (smpMetaData == null)
                 {
-                    Logger.Error($"No SMP meta-data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
+                    Logger.Error($"No SMP meta-data document was retrieved by the Dynamic Discovery profile: {Config.Encode(profile.GetType().Name)}");
                     throw new InvalidDataException(
                         "No SMP meta-data document was retrieved during the Dynamic Discovery process");
                 }
@@ -163,7 +167,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 DynamicDiscoveryResult result = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
                 if (result == null)
                 {
-                    Logger.Error($@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {profile.GetType().Name}");
+                    Logger.Error($@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {Config.Encode(profile.GetType().Name)}");
                     throw new InvalidDataException(
                         "No decorated SendingPMode was returned during the Dynamic Discovery");
                 }
@@ -174,8 +178,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             catch (Exception ex) 
             {
                 Logger.Error(
-                    $"An exception occured during the Dynamic Discovery process of the profile: {profile.GetType().Name} "
-                    + $"with the message having ToParty={toParty} for SendingPMode {sendingPMode.Id}");
+                    $"An exception occured during the Dynamic Discovery process of the profile: {Config.Encode(profile.GetType().Name)} "
+                    + $"with the message having ToParty={Config.Encode(toParty)} for SendingPMode {Config.Encode(sendingPMode.Id)}");
 
                 throw new DynamicDiscoveryException(
                     "An exception occured during the Dynamic Discovery process", ex);
@@ -208,26 +212,25 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .Instance
                 .Validate(pmode)
                 .Result(
-                    onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {pmode.Id} is valid"),
+                    onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {Config.Encode(pmode.Id)} is valid"),
                     onValidationFailed: result =>
                     {
                         string errorMessage = 
                             result.AppendValidationErrorsToErrorMessage(
                                 $"(Submit) Dynamically completed PMode {pmode.Id} was invalid:");
 
-                        Logger.Error(errorMessage);
+                        Logger.Error(Config.Encode(errorMessage));
 
                         throw new ConfigurationErrorsException(errorMessage);
                     });
         }
-
         private static AS4Party ResolveAS4ReceiverParty(AS4Message msg)
         {
             if (msg?.PrimaryMessageUnit is UserMessage m)
             {
                 Logger.Debug(
                     "Resolve ToParty in a Forwarding scenario from AS4Message's "
-                    + $"primary messsage unit {m.MessageId} {{MessageType=UserMessage}}");
+                    + $"primary messsage unit {Config.Encode(m.MessageId)} {{MessageType=UserMessage}}");
 
                 return m.Receiver;
             }
@@ -319,5 +322,5 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="message">The message that describes the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public DynamicDiscoveryException(string message, Exception innerException) : base(message, innerException) { }
-    }
+    }  
 }

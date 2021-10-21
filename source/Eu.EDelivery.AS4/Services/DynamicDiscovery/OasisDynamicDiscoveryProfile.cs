@@ -11,10 +11,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Heijden.DNS;
-using NLog;
+using log4net;
 using Wiry.Base32;
 using ArgumentException = System.ArgumentException;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
@@ -31,7 +32,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     {
         private const string SmpHttpRegexPattern = ".*?(http.*[^!])";
         private static readonly Regex SmpHttpRegex = new Regex(SmpHttpRegexPattern, RegexOptions.Compiled);
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly Resolver DnsResolver = new Resolver()
         {
@@ -167,7 +168,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     return (participant, dnsResponse);
                 }
 
-                Logger.Debug($"DNS NAPTR query: {dnsDomainName} doesn't result in a DNS NAPTR awnser, try next PartyId");
+                Logger.Debug($"DNS NAPTR query: {Config.Encode(dnsDomainName)} doesn't result in a DNS NAPTR awnser, try next PartyId");
             }
 
             throw new InvalidDataException(
@@ -354,7 +355,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string endpointUri = endpointUriNode.InnerText.Replace(" ", "").Replace("\r\n", "");
 
-            Logger.Trace($"Override SendingPMode.PushConfiguration.Protocol.Url with {endpointUri}");
+            Logger.Trace($"Override SendingPMode.PushConfiguration.Protocol.Url with {Config.Encode(endpointUri)}");
             pmode.PushConfiguration = pmode.PushConfiguration ?? new PushConfiguration();
             pmode.PushConfiguration.Protocol = pmode.PushConfiguration.Protocol ?? new Protocol();
             pmode.PushConfiguration.Protocol.Url = endpointUri;
@@ -382,7 +383,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             }
 
             string action = $"{documentScheme}::{documentIdentifierNode.InnerText}";
-            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {action}");
+            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {Config.Encode(action)}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
@@ -408,7 +409,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             Logger.Trace(
                 "Override SendingPMode.MessagePackaging.CollaborationInfo.Service with "
-                + $"{{Value={processIdentifierNode.InnerText}, Type={serviceType}}}");
+                + $"{{Value={Config.Encode(processIdentifierNode.InnerText)}, Type={Config.Encode(serviceType)}}}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
@@ -457,7 +458,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     .FirstOrDefault(a => StringComparer.OrdinalIgnoreCase.Equals(a.Name, "scheme"))
                     ?.Value;
             
-            Logger.Trace($"Add MessageProperty 'finalRecipient' = '{participantIdentifier}' to SendingPMode");
+            Logger.Trace($"Add MessageProperty 'finalRecipient' = '{Config.Encode(participantIdentifier)}' to SendingPMode");
             return new MessageProperty
             {
                 Name = "finalRecipient",
@@ -469,7 +470,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static MessageProperty CreateOriginalSender()
         {
             const string defaultUrnTypeValueC1 = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
-            Logger.Trace($"Add MessageProperty 'originalSender'= '{defaultUrnTypeValueC1}' to SendingPMode");
+            Logger.Trace($"Add MessageProperty 'originalSender'= '{Config.Encode(defaultUrnTypeValueC1)}' to SendingPMode");
 
             return new MessageProperty
             {
@@ -500,7 +501,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             Logger.Trace(
                 "Override SendingPMode.MessagingPackaging.PartyInfo.ToParty with "
-                + $"{{Role={defaultResponderRole}, PartyId={commonName}, PartyIdType={defaultUrnTypeValue}}}");
+                + $"{{Role={Config.Encode(defaultResponderRole)}, PartyId={Config.Encode(commonName)}, PartyIdType={Config.Encode(defaultUrnTypeValue)}}}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.PartyInfo = pmode.MessagePackaging.PartyInfo ?? new PartyInfo();

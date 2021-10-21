@@ -4,11 +4,12 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     {
         private readonly Func<DatastoreContext> _createDatastore;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalDynamicDiscoveryProfile" /> class.
@@ -143,11 +144,11 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void OverridePushProtocolUrlWithTlsEnabling(SendingProcessingMode pmode, SmpConfiguration smpResponse)
         {
-            Logger.Debug($"Decorate SendingPMode {pmode.Id} with SMP from local store");
+            Logger.Debug($"Decorate SendingPMode {Config.Encode(pmode.Id)} with SMP from local store");
             Logger.Trace(
                 "Override SendingPMode.PushConfiguration with {{"
-                + $"Protocol.Url={smpResponse.Url}, "
-                + $"TlsConfiguration.IsEnabled={smpResponse.TlsEnabled}}}");
+                + $"Protocol.Url={Config.Encode(smpResponse.Url)}, "
+                + $"TlsConfiguration.IsEnabled={Config.Encode(smpResponse.TlsEnabled)}}}");
 
             pmode.PushConfiguration = pmode.PushConfiguration ?? new PushConfiguration();
             pmode.PushConfiguration.Protocol = pmode.PushConfiguration.Protocol ?? new Protocol();
@@ -159,11 +160,11 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void OverrideEntireEncryption(SendingProcessingMode pmode, SmpConfiguration smpResponse)
         {
-            Logger.Trace($"Override SendingPMode.Encryption with {{IsEnabled={smpResponse.EncryptionEnabled}}}");
+            Logger.Trace($"Override SendingPMode.Encryption with {{IsEnabled={Config.Encode(smpResponse.EncryptionEnabled)}}}");
             Logger.Trace(
                 "Override SendingPMode.Encryption with {{"
-                + $"Algorithm={smpResponse.EncryptAlgorithm}, "
-                + $"AlgorithmKeySize={smpResponse.EncryptAlgorithmKeySize}}}");
+                + $"Algorithm={Config.Encode(smpResponse.EncryptAlgorithm)}, "
+                + $"AlgorithmKeySize={Config.Encode(smpResponse.EncryptAlgorithmKeySize)}}}");
 
             Logger.Trace("Override SendingPMode.Encryption with {{CertificateType=PublicKeyCertificate}}");
             Logger.Trace(
@@ -192,8 +193,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             Logger.Trace(
                 "Override SendingPMode.MessagingPackaging.ToParty with {{"
-                + $"Role={smpResponse.PartyRole}, "
-                + $"PartyId={smpResponse.ToPartyId}}}");
+                + $"Role={Config.Encode(smpResponse.PartyRole)}, "
+                + $"PartyId={Config.Encode(smpResponse.ToPartyId)}}}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.PartyInfo = pmode.MessagePackaging.PartyInfo ?? new PartyInfo();
@@ -213,7 +214,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                Logger.Error(Config.Encode(ex));
                 return null;
             }
         }
@@ -222,9 +223,9 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             Logger.Trace(
                 "Override SendingPMode.MessagingPackaing.CollaborationInfo with {{"
-                + $"ServiceType={smpResponse.ServiceType}, "
-                + $"ServiceValue={smpResponse.ServiceValue}, "
-                + $"Action={smpResponse.Action}}}");
+                + $"ServiceType={Config.Encode(smpResponse.ServiceType)}, "
+                + $"ServiceValue={Config.Encode(smpResponse.ServiceValue)}, "
+                + $"Action={Config.Encode(smpResponse.Action)}}}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();

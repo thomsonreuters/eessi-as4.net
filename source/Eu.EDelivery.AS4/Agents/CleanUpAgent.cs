@@ -6,8 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Strategies.Database;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Agents
 {
@@ -18,7 +20,7 @@ namespace Eu.EDelivery.AS4.Agents
     /// <seealso cref="IAgent" />
     internal class CleanUpAgent : IAgent
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly Func<DatastoreContext> _storeExpression;
         private readonly TimeSpan _retentionPeriod;
@@ -94,5 +96,10 @@ namespace Eu.EDelivery.AS4.Agents
         /// Stops this agent.
         /// </summary>
         public void Stop() { }
+
+        public Task<MessagingContext> Process(MessagingContext message, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

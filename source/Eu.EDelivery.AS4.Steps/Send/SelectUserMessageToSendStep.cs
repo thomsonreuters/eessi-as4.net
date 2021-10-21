@@ -15,7 +15,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Microsoft.EntityFrameworkCore;
-using NLog;
+using log4net;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         "This step selects a message that matches the MPC of the received pull-request signalmessage.")]
     public class SelectUserMessageToSendStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 if (message == null)
                 {
-                    Logger.Warn($"No UserMessage found for PullRequest.Mpc: {pullRequest.Mpc}");
+                    Logger.Warn($"No UserMessage found for PullRequest.Mpc: {Config.Encode(pullRequest.Mpc)}");
                     return (false, null);
                 }
 
@@ -122,14 +122,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 context.SaveChanges();
                 context.Database.CommitTransaction();
 
-                Logger.Info($"(PullSend) UserMessage found for PullRequest.Mpc: {pullRequest.Mpc}");
+                Logger.Info($"(PullSend) UserMessage found for PullRequest.Mpc: {Config.Encode(pullRequest.Mpc)}");
                 return (true, message);
             }
         }
 
         private static Expression<Func<OutMessage, bool>> PullRequestQuery(PullRequest pullRequest)
         {
-            Logger.Debug($"Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
+            Logger.Debug($"Query UserMessages with MPC={Config.Encode(pullRequest.Mpc)} && Operation=ToBeSent && MEP=Pull");
 
             return m => m.Mpc == pullRequest.Mpc &&
                         m.Operation == Operation.ToBeSent &&

@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     [NotConfigurable]
     public class CreateDefaultAS4MessageStep : IConfigStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly IConfig _config;
 
         private IDictionary<string, string> _properties;
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             messagingContext.AS4Message.AddMessageUnit(userMessage);
             messagingContext.SendingPMode = pmode;
 
-            Logger.Info($"{messagingContext.LogTag} Default AS4Message is created using SendingPMode {pmode.Id}");
+            Logger.Info($"{Config.Encode(messagingContext.LogTag)} Default AS4Message is created using SendingPMode {Config.Encode(pmode.Id)}");
             return await StepResult.SuccessAsync(messagingContext);
         }
     }

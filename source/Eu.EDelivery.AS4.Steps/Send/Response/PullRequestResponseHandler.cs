@@ -7,7 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4ResponseHandler _nextHandler;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         internal PullRequestResponseHandler(IAS4ResponseHandler nextHandler) 
             : this(Registry.Instance.CreateDatastoreContext, nextHandler) { }

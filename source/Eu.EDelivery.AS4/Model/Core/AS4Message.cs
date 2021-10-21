@@ -25,6 +25,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         private readonly bool _serializeAsMultiHop;
         private readonly List<Attachment> _attachmens;
         private readonly List<MessageUnit> _messageUnits;
+        private AS4Message(XmlElement samlElement, bool serializeAsMultiHop = false)
+        {
+            _serializeAsMultiHop = serializeAsMultiHop;
+            _attachmens = new List<Attachment>();
+            _messageUnits = new List<MessageUnit>();
+
+            ContentType = "application/soap+xml";
+            SigningId = new SigningId();
+            SecurityHeader = new SecurityHeader(SecurityHeader.CreateSecurityHeaderWithSaml(samlElement));
+        }
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
@@ -45,7 +55,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public string ContentType { get; private set; }
 
-        public XmlDocument EnvelopeDocument { get; private set; }
+        public XmlDocument EnvelopeDocument { get; set; }
 
         // ReSharper disable once InconsistentNaming
         private bool? __hasMultiHopAttribute;
@@ -178,9 +188,34 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
+        public static AS4Message Create(XmlElement samlElement, SendingProcessingMode pmode)
+        {
+            return new AS4Message(samlElement, pmode?.MessagePackaging?.IsMultiHop == true);
+        }
+
+        /// <summary>
+        /// Creates message with a <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
         public static AS4Message Create(SendingProcessingMode pmode)
         {
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
+        }
+
+        /// <summary>
+        /// Creates message with a <see cref="MessageUnit"/> and a optional <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(XmlElement samlElement, MessageUnit message, SendingProcessingMode pmode = null)
+        {
+            AS4Message as4Message = Create(samlElement, pmode);
+
+            as4Message.AddMessageUnit(message);
+
+            return as4Message;
         }
 
         /// <summary>

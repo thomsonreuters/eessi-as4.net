@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Receive.Participant
 {
@@ -10,7 +12,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
     /// </summary>
     internal static class PModeRuleEngine
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly ICollection<IPModeRule> Rules;
 
         static PModeRuleEngine()
@@ -35,7 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
             foreach (IPModeRule rule in Rules)
             {
                 int points = rule.DeterminePoints(participant.PMode, participant.UserMessage);
-                Logger.Trace($"PMode {participant.PMode.Id}: {points} Points determined for the {rule.GetType().Name}");
+                Logger.Trace($"PMode {Config.Encode(participant.PMode.Id)}: {Config.Encode(points)} Points determined for the {Config.Encode(rule.GetType().Name)}");
 
                 participant.Points += points;
             }

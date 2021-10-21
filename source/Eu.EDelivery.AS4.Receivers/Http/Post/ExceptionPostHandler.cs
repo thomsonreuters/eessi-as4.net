@@ -2,9 +2,10 @@
 using System.Net;
 using System.Security;
 using System.Text;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
@@ -13,7 +14,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
     /// </summary>
     internal class ExceptionPostHandler : IHttpPostHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Determines if the resulted context can be handled by this instance.
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
             HttpStatusCode statusCode = DetermineStatusCode(context.Exception);
             const string errorMessage = "something went wrong while processing the request";
 
-            Logger.Error($"Respond with {(int) statusCode} {statusCode} {errorMessage}");
+            Logger.Error($"Respond with {Config.Encode((int) statusCode)} {Config.Encode(statusCode)} {Config.Encode(errorMessage)}");
             return HttpResult.FromBytes(
                 statusCode,
                 Encoding.UTF8.GetBytes(errorMessage),

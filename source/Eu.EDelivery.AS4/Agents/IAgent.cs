@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using Eu.EDelivery.AS4.Model.Internal;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.Agents
@@ -20,6 +21,11 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         Task Start(CancellationToken cancellation);
+
+        /// <summary>
+        /// Does manual processing of an agent;
+        /// </summary>
+        Task<MessagingContext> Process(MessagingContext context, CancellationToken cancellation);
 
         /// <summary>
         /// Stops this agent.

@@ -3,7 +3,7 @@ using Eu.EDelivery.AS4.Strategies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using NLog;
+using log4net;
 using Polly;
 using Polly.Retry;
 using System;
@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -22,6 +23,8 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly IDictionary<string, Func<string, DbContextOptionsBuilder, DbContextOptionsBuilder>> DbProviders =
             InitializeDbProviders();
 
@@ -253,11 +256,12 @@ namespace Eu.EDelivery.AS4.Common
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
             optionsBuilder.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
-
-            optionsBuilder.UseLoggerFactory(Logger);
+            // TODO: Pooja: We need to check this out
+            optionsBuilder.UseLoggerFactory(LoggerFactory);
         }
 
-        private static readonly LoggerFactory Logger = new LoggerFactory(new[] { new TraceLoggerProvider() });
+        // TODO: Pooja: We need to check this out
+        private static readonly LoggerFactory LoggerFactory = new LoggerFactory();
 
         /// <summary>
         ///     Override this method to further configure the model that was discovered by convention from the entity types
@@ -532,12 +536,10 @@ namespace Eu.EDelivery.AS4.Common
         {
             Exception mostInnerException = null;
 
-            var logger = LogManager.GetCurrentClassLogger();
-
             while (innerException != null)
             {
-                logger.Error(innerException.Message);
-                logger.Trace(innerException.StackTrace);
+                Logger.Error(innerException.Message);
+                Logger.Trace(innerException.StackTrace);
 
                 mostInnerException = innerException;
                 innerException = innerException.InnerException;

@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Builders;
 using Eu.EDelivery.AS4.Security.Encryption;
 using MimeKit.IO;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private readonly KeyEncryptionConfiguration _keyEncryptionConfig;
         private readonly DataEncryptionConfiguration _dataEncryptionConfig;
-
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly List<EncryptedData> _encryptedDatas = new List<EncryptedData>();
 
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
             else
             {
-                LogManager.GetCurrentClassLogger().Warn("Appending Encryption Elements but there is no AS4 Encrypted Key set.");
+                Logger.Warn("Appending Encryption Elements but there is no AS4 Encrypted Key set.");
             }
 
             AppendEncryptedDataElements(securityElement, securityDocument);

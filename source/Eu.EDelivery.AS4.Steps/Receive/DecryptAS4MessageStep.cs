@@ -6,12 +6,13 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
 using Org.BouncyCastle.Crypto;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -23,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("Decrypts the received AS4 Message if necessary by using the specified Receiving PMode")]
     public class DecryptAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly ICertificateRepository _certificateRepository;
 
@@ -82,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (receivePMode.Security.Decryption.Encryption == Limit.Required && !context.AS4Message.IsEncrypted)
             {
                 Logger.Error(
-                    $"AS4Message is not encrypted but ReceivingPMode {receivePMode.Id} requires it. "
+                    $"AS4Message is not encrypted but ReceivingPMode {Config.Encode(receivePMode.Id)} requires it. "
                     + $"{Environment.NewLine} Please alter the PMode Decryption.Encryption element to Allowed or Ignored");
 
                 context.ErrorResult = new ErrorResult("AS4Message is not encrypted but ReceivingPMode requires it", ErrorAlias.PolicyNonCompliance);
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (receivePMode.Security.Decryption.Encryption == Limit.NotAllowed && context.AS4Message.IsEncrypted)
             {
                 Logger.Error(
-                    $"AS4Message is encrypted but ReceivingPMode {receivePMode.Id} doesn't allow it. " +
+                    $"AS4Message is encrypted but ReceivingPMode {Config.Encode(receivePMode.Id)} doesn't allow it. " +
                     $"{Environment.NewLine} Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored");
 
                 context.ErrorResult = new ErrorResult("AS4Message is encrypted but ReceivingPMode doesn't allow it", ErrorAlias.PolicyNonCompliance);
@@ -107,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (context.ReceivingPMode?.Security?.Decryption?.Encryption == Limit.Ignored)
             {
-                Logger.Debug($"Decryption is ignored in ReceivingPMode {receivePMode.Id}, so no decryption will take place");
+                Logger.Debug($"Decryption is ignored in ReceivingPMode {Config.Encode(receivePMode.Id)}, so no decryption will take place");
                 return StepResult.Success(context);
             }
 
@@ -121,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Trace("Start decrypting AS4Message ...");
                 X509Certificate2 decryptionCertificate = GetCertificate(messagingContext);
                 messagingContext.AS4Message.Decrypt(decryptionCertificate);
-                Logger.Info($"{messagingContext.LogTag} AS4Message is decrypted correctly");
+                Logger.Info($"{Config.Encode(messagingContext.LogTag)} AS4Message is decrypted correctly");
 
                 JournalLogEntry entry = 
                     JournalLogEntry.CreateFrom(
@@ -134,13 +135,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (Exception ex) when (ex is CryptoException || ex is CryptographicException)
             {
-                Logger.Error(ex);
+                Logger.Error(Config.Encode(ex));
 
                 messagingContext.ErrorResult = new ErrorResult(
                     description: "Decryption of message failed",
                     alias: ErrorAlias.FailedDecryption);
 
-                Logger.Error(messagingContext.ErrorResult.Description);
+                Logger.Error(Config.Encode(messagingContext.ErrorResult.Description));
                 return StepResult.Failed(messagingContext);
             }
         }

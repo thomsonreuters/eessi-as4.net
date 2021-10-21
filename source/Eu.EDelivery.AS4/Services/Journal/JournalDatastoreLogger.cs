@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Common;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Services.Journal
 {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.Services.Journal
     {
         private readonly Func<DatastoreContext> _createDatastore;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JournalDatastoreLogger"/> class.

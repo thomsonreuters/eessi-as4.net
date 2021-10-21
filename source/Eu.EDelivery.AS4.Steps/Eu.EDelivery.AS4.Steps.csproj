@@ -10,7 +10,7 @@
     <RootNamespace>Eu.EDelivery.AS4.Steps</RootNamespace>
     <AssemblyName>Eu.EDelivery.AS4.Steps</AssemblyName>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -109,8 +109,8 @@
     <PackageReference Include="FluentValidation">
       <Version>6.2.1</Version>
     </PackageReference>
-    <PackageReference Include="NLog">
-      <Version>4.3.5</Version>
+    <PackageReference Include="log4net">
+      <Version>2.0.12</Version>
     </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.4.0</Version>

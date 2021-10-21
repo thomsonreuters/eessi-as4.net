@@ -11,7 +11,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         private readonly IAS4MessageBodyStore _messageStore;
         private readonly Func<DatastoreContext> _createDataStoreContext;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateForwardMessageStep"/> class.
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             // Forward message by creating an OutMessage and set operation to 'ToBeProcessed'.
-            Logger.Info($"{messagingContext.LogTag} Create a message that will be forwarded to the next MSH");
+            Logger.Info($"{Config.Encode(messagingContext.LogTag)} Create a message that will be forwarded to the next MSH");
             using (Stream originalInMessage =
                 await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
             {

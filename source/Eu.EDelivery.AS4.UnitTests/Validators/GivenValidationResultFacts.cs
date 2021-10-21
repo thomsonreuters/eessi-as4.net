@@ -1,6 +1,7 @@
 ﻿using Eu.EDelivery.AS4.Validators;
 using FluentValidation;
 using FluentValidation.Results;
+using log4net;
 using Moq;
 using NLog;
 using Xunit;
@@ -17,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             result.Errors.Add(new ValidationFailure("property 1", "error message"));
             result.Errors.Add(new ValidationFailure("property 2", "error message"));
 
-            var spyLogger = Mock.Of<ILogger>();
+            var spyLogger = Mock.Of<ILog>();
 
             // Act
             result.LogErrors(spyLogger);

@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class AS4MessageTransformer : ITransformer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.

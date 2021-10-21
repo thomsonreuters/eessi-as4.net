@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Common;
 
 namespace Eu.EDelivery.AS4.Services
 {
@@ -13,7 +15,7 @@ namespace Eu.EDelivery.AS4.Services
     /// </summary>
     internal class MarkForRetryService
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IDatastoreRepository _repository;
 
@@ -202,14 +204,14 @@ namespace Eu.EDelivery.AS4.Services
                 if (rr == null)
                 {
                     Logger.Debug("Message can't be retried because no RetryReliability is configured");
-                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
+                    Logger.Debug($"Update {Config.Encode(typeof(T).Name)} with {{Status=Exception, Operation=DeadLettered}}");
 
                     onDeadLettered(entityToBeRetried);
                     entityToBeRetried.Operation = Operation.DeadLettered;
                 }
                 else if (resultOfOperation == SendResult.RetryableFail)
                 {
-                    Logger.Debug($"Message failed this time, set for retry by updating {typeof(T).Name}.Operation=ToBeRetried");
+                    Logger.Debug($"Message failed this time, set for retry by updating {Config.Encode(typeof(T).Name)}.Operation=ToBeRetried");
 
                     entityToBeRetried.Operation = Operation.ToBeRetried;
                     rr.Status = RetryStatus.Pending;
@@ -217,7 +219,7 @@ namespace Eu.EDelivery.AS4.Services
                 else
                 {
                     Logger.Debug("Message failed this time due to a fatal result during sending");
-                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {Config.Encode(typeof(T).Name)} with Status=Exception, Operation=DeadLettered");
 
                     onDeadLettered(entityToBeRetried);
                     entityToBeRetried.Operation = Operation.DeadLettered;
@@ -277,7 +279,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (resultOfOperation == SendResult.Success)
             {
-                Logger.Debug($"Update {typeof(T).Name} {reftoMessageId} with Operation=Notified");
+                Logger.Debug($"Update {Config.Encode(typeof(T).Name)} {Config.Encode(reftoMessageId)} with Operation=Notified");
                 entityToBeRetried.Operation = Operation.Notified;
 
                 if (rr != null)
@@ -289,22 +291,22 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (rr == null)
                 {
-                    Logger.Debug($"{typeof(T).Name} NotifyMessage failed during the notification, exhausted retries");
-                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
+                    Logger.Debug($"{Config.Encode(typeof(T).Name)} NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Debug($"Update {Config.Encode(typeof(T).Name)} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entityToBeRetried.Operation = Operation.DeadLettered;
                 }
                 else if (resultOfOperation == SendResult.RetryableFail)
                 {
-                    Logger.Debug($"{typeof(T).Name} NotifyMessage failed this time, will be retried by updating Operation=ToBeRetried");
+                    Logger.Debug($"{Config.Encode(typeof(T).Name)} NotifyMessage failed this time, will be retried by updating Operation=ToBeRetried");
 
                     entityToBeRetried.Operation = Operation.ToBeRetried;
                     rr.Status = RetryStatus.Pending;
                 }
                 else
                 {
-                    Logger.Debug($"{typeof(T).Name} NotifyMessage failed during the notification, exhausted retries");
-                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
+                    Logger.Debug($"{Config.Encode(typeof(T).Name)} NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Debug($"Update {Config.Encode(typeof(T).Name)} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entityToBeRetried.Operation = Operation.DeadLettered;
                     rr.Status = RetryStatus.Completed;

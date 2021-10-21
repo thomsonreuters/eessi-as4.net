@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -18,6 +18,8 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public abstract class MessageEntity : Entity
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         [MaxLength(256)]
         public string EbmsMessageId { get; private set; }
 
@@ -197,7 +199,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
-                LogManager.GetCurrentClassLogger().Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
+                Logger.Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
                 return null;
             }
 
@@ -212,7 +214,7 @@ namespace Eu.EDelivery.AS4.Entities
             }
             catch (Exception exception)
             {
-                LogManager.GetCurrentClassLogger().Error(exception.Message);
+                Logger.Error(exception.Message);
 
                 return null;
             }

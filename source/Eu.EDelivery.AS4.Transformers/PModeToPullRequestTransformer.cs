@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -9,7 +10,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class PModeToPullRequestTransformer : ITransformer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
-            Logger.Info($"Prepare sending PullRequest with MPC=\"{pmode?.MessagePackaging?.Mpc}\"");
+            Logger.Info($"Prepare sending PullRequest with MPC=\"{Config.Encode(pmode?.MessagePackaging?.Mpc)}\"");
             AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(IdentifierFactory.Instance.Create(), pmode?.MessagePackaging?.Mpc), pmode);
 
             return new MessagingContext(pullRequestMessage, MessagingContextMode.PullReceive) {SendingPMode = pmode};
@@ -77,7 +78,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             var errorMessage = result.AppendValidationErrorsToErrorMessage($"Receiving PMode {pmode.Id} is not valid");
 
-            Logger.Error(errorMessage);
+            Logger.Error(Config.Encode(errorMessage));
             
             return new InvalidDataException(errorMessage);
         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Net;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
@@ -11,7 +12,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
     /// </summary>
     internal class SyncSignalResponseHandler : IHttpPostHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Determines if the resulted context can be handled by this instance.
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
             }
 
             HttpStatusCode statusCode = DetermineHttpCodeFrom(context);
-            Logger.Debug($"Respond with {(int)statusCode} {statusCode}: Receipt/Errors are responded sync");
+            Logger.Debug($"Respond with {Config.Encode((int)statusCode)} {Config.Encode(statusCode)}: Receipt/Errors are responded sync");
             
             return HttpResult.FromAS4Message(statusCode, context.AS4Message);
         }

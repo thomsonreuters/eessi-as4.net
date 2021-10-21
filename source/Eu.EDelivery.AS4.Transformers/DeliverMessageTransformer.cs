@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
     public class DeliverMessageTransformer : ITransformer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly AS4MessageTransformer AS4MessageTransformer = new AS4MessageTransformer();
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     toBeUploadedAttachments,
                     context.ReceivingPMode);
 
-            Logger.Info($"(Deliver) Created DeliverMessage from (first) UserMessage {as4Message.FirstUserMessage.MessageId}");
+            Logger.Info($"(Deliver) Created DeliverMessage from (first) UserMessage {Config.Encode(as4Message.FirstUserMessage.MessageId)}");
             var envelope = new DeliverMessageEnvelope(
                 message: deliverMessage,
                 contentType: "application/xml",
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
             return context;
         }
 
-        private static DeliverMessage CreateDeliverMessage(
+        public static DeliverMessage CreateDeliverMessage(
             UserMessage user,
             IEnumerable<Attachment> attachments,
             ReceivingProcessingMode receivingPMode)

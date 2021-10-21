@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,7 +14,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         "Message verification is necessary to ensure that the authenticity of the message is intact.")]
     public class VerifySignatureAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly Func<DatastoreContext> _storeExpression;
         private readonly IAS4MessageBodyStore _bodyStore;
 
@@ -118,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (!await VerifyNonRepudiationHashesAsync(as4Message))
                 {
-                    Logger.Error($"{messagingContext.LogTag} Incoming Receipt hasn't got valid NRI References");
+                    Logger.Error($"{Config.Encode(messagingContext.LogTag)} Incoming Receipt hasn't got valid NRI References");
 
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
@@ -127,7 +128,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Debug($"{messagingContext.LogTag} Incoming Receipt has valid NRI References");
+                Logger.Debug($"{Config.Encode(messagingContext.LogTag)} Incoming Receipt has valid NRI References");
             }
 
             return await TryVerifyingSignatureAsync(messagingContext, verification).ConfigureAwait(false);
@@ -138,11 +139,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (ctx.AS4Message.IsSignalMessage
                 && !ctx.AS4Message.IsMultiHopMessage)
             {
-                Logger.Trace($"Use SendingPMode {ctx.SendingPMode?.Id} for signature verification");
+                Logger.Trace($"Use SendingPMode {Config.Encode(ctx.SendingPMode?.Id)} for signature verification");
                 return ctx.SendingPMode?.Security?.SigningVerification;
             }
 
-            Logger.Trace($"Use ReceivingPMode {ctx.ReceivingPMode?.Id} for signature verification");
+            Logger.Trace($"Use ReceivingPMode {Config.Encode(ctx.ReceivingPMode?.Id)} for signature verification");
             return ctx.ReceivingPMode?.Security?.SigningVerification;
         }
 
@@ -205,7 +206,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 VerifySignatureConfig options =
                     CreateVerifyOptionsForAS4Message(messagingContext.AS4Message, verification);
 
-                Logger.Debug($"Verify signature on the AS4Message {{AllowUnknownRootCertificateAuthority={options.AllowUnknownRootCertificateAuthority}}}");
+                Logger.Debug($"Verify signature on the AS4Message {{AllowUnknownRootCertificateAuthority={Config.Encode(options.AllowUnknownRootCertificateAuthority)}}}");
                 if (!messagingContext.AS4Message.VerifySignature(options))
                 {
                     return InvalidSignatureResult(
@@ -214,7 +215,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid signature present");
+                Logger.Info($"{Config.Encode(messagingContext.LogTag)} AS4Message has a valid signature present");
 
                 JournalLogEntry entry = 
                     JournalLogEntry.CreateFrom(
@@ -239,7 +240,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     description = "Signature verification failed because the message is still encrypted";
                 }
 
-                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
+                Logger.Error($"{Config.Encode(messagingContext.LogTag)} An exception occured while validating the signature: {Config.Encode(exception.Message)}");
                 return InvalidSignatureResult(
                     description, 
                     ErrorAlias.FailedAuthentication, 
@@ -257,7 +258,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            Logger.Error(description);
+            Logger.Error(Config.Encode(description));
 
             context.ErrorResult = new ErrorResult(description, errorAlias);
             return StepResult.Failed(context);

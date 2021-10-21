@@ -2,12 +2,13 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("Saves a received message as-is in the datastore.")]
     public class SaveReceivedMessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
@@ -90,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
-            Logger.Trace($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
+            Logger.Trace($"{Config.Encode(messagingContext.LogTag)} Store the incoming AS4 Message to the datastore");
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
             if (resultContext != null && resultContext.Exception == null)
@@ -104,7 +105,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     && string.IsNullOrWhiteSpace(primaryMessageUnit.RefToMessageId))
                 {
                     Logger.Warn(
-                        $"{messagingContext.LogTag} Received message is a SignalMessage without RefToMessageId. " +
+                        $"{Config.Encode(messagingContext.LogTag)} Received message is a SignalMessage without RefToMessageId. " +
                         "No such SignalMessage are supported so the message cannot be processed any further");
 
                     return StepResult
@@ -112,11 +113,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         .AndStopExecution();
                 }
 
-                Logger.Trace($"{messagingContext.LogTag} The AS4Message is successfully stored into the datastore");
+                Logger.Trace($"{Config.Encode(messagingContext.LogTag)} The AS4Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
 
-            Logger.Error($"{messagingContext.LogTag} The AS4Message is not stored correctly into the datastore {resultContext?.Exception}");
+            Logger.Error($"{Config.Encode(messagingContext.LogTag)} The AS4Message is not stored correctly into the datastore {Config.Encode(resultContext?.Exception)}");
             return StepResult.Failed(resultContext);
         }
 

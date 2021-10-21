@@ -5,7 +5,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -13,7 +15,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Validators;
-using NLog;
+using log4net;
 using ArgumentNullException = System.ArgumentNullException;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -25,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     [Description("Create an AS4 Message for the submit message")]
     public class CreateAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly Func<Payload, IPayloadRetriever> _resolvePayloadRetriever;
 
@@ -78,8 +80,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Logger.Trace("Create UserMessage for SubmitMessage");
             UserMessage userMessage = SubmitMessageMap.CreateUserMessage(submitMessage, submitMessage.PMode);
 
-            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from SubmitMessage");
-            AS4Message as4Message = AS4Message.Create(userMessage, messagingContext.SendingPMode);
+            Logger.Info($"{Config.Encode(messagingContext.LogTag)} UserMessage with Id \"{Config.Encode(userMessage.MessageId)}\" created from SubmitMessage");
+            AS4Message as4Message = AS4Message.Create(submitMessage.SamlToken, userMessage, messagingContext.SendingPMode);
 
             IEnumerable<Attachment> attachments = 
                 await RetrieveAttachmentsForAS4MessageAsync(submitMessage.Payloads)
@@ -97,12 +99,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .Instance
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" is valid"),
+                    result => Logger.Trace($"SubmitMessage \"{Config.Encode(submitMessage.MessageInfo?.MessageId)}\" is valid"),
                     result =>
                     {
                         string description = result.AppendValidationErrorsToErrorMessage("SubmitMessage was invalid");
 
-                        Logger.Error(description);
+                        Logger.Error(Config.Encode(description));
                         throw new InvalidMessageException(description);
 
                     });
@@ -120,15 +122,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 Logger.Trace("Start retrieving SubmitMessage payloads contents...");
                 IEnumerable<Attachment> attachments = await RetrieveAttachmentsAsync(payloads).ConfigureAwait(false);
-                Logger.Trace($"Successfully retrieved {attachments.Count()} payloads");
+                Logger.Trace($"Successfully retrieved {Config.Encode(attachments.Count())} payloads");
 
                 return attachments;
             }
             catch (Exception exception)
             {
                 const string description = "Failed to retrieve SubmitMessage payloads";
-                Logger.Error(description);
-                Logger.Error(exception);
+                Logger.Error(Config.Encode(description));
+                Logger.Error(Config.Encode(exception));
 
                 throw new ApplicationException(description, exception);
             }
@@ -163,7 +165,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                 Stream content = await RetrievePayloadContentsAsync(payload).ConfigureAwait(false);
 
-                Logger.Trace($"Add attachment {payload.Id} {payload.MimeType} to AS4Message");
+                Logger.Trace($"Add attachment {Config.Encode(payload.Id)} {Config.Encode(payload.MimeType)} to AS4Message");
                 attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
             }
 

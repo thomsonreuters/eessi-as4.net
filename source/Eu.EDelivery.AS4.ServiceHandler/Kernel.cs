@@ -5,8 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
 {
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         private readonly IEnumerable<IAgent> _agents;
         private readonly IConfig _config;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Kernel" /> class.

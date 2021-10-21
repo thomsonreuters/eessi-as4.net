@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Net;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
     internal class AcceptedResponseHandler : IHttpPostHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Determines if the resulted context can be handled by this instance.

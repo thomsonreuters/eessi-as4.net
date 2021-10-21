@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class SubmitMessageXmlTransformer : ITransformer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -52,16 +53,6 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 var doc = new XmlDocument();
                 doc.Load(message.UnderlyingStream);
-
-                var schemas = new XmlSchemaSet();
-                schemas.Add(XsdSchemaDefinitions.SubmitMessage);
-                doc.Schemas = schemas;
-
-                doc.Validate((sender, args) =>
-                {
-                    Logger.Fatal("Incoming Submit Message doesn't match the XSD: " + args.Message);
-                    throw args.Exception;
-                });
 
                 return AS4XmlSerializer.FromString<SubmitMessage>(doc.OuterXml);
             }

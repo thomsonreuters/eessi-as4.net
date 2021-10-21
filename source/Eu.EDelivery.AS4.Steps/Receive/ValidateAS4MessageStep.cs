@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using Eu.EDelivery.AS4.Common;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -16,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class ValidateAS4MessageStep : IStep
     {
         private static readonly XmlNamespaceManager Namespaces = new XmlNamespaceManager(new NameTable());
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         static ValidateAS4MessageStep()
         {
@@ -86,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            Logger.Trace($"{context.LogTag} Received AS4Message is valid");
+            Logger.Trace($"{Config.Encode(context.LogTag)} Received AS4Message is valid");
             return await StepResult.SuccessAsync(context);
         }
 
@@ -129,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult ValidationFailure(MessagingContext context)
         {
-            Logger.Error($"{context.LogTag} AS4Message is not valid: {context.ErrorResult.Description}");
+            Logger.Error($"{Config.Encode(context.LogTag)} AS4Message is not valid: {Config.Encode(context.ErrorResult.Description)}");
             return StepResult.Failed(context);
         }
     }

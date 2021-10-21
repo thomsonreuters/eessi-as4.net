@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -13,7 +14,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class UploadAttachmentsStep : IStep
     {
         private readonly Func<DatastoreContext> _createDbContext;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IAttachmentUploaderProvider _provider;
 
@@ -117,10 +118,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 .Select(r => r.Status)  
                 .Aggregate(SendResultUtils.Reduce);
 
-            await UpdateDeliverMessageAccordinglyToUploadResult(
-                messageId: deliverEnvelope.Message.MessageInfo?.MessageId,
-                status: accResult);
-
             if (accResult == SendResult.Success)
             {
                 return StepResult.Success(messagingContext);
@@ -151,7 +148,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                Logger.Trace($"Start Uploading Attachment {attachment.Id}...");
+                Logger.Trace($"Start Uploading Attachment {Config.Encode(attachment.Id)}...");
+                Logger.Info($"UploadAttachmentsStep -> Start Uploading Attachment {Config.Encode(attachment.Id)}...");
                 Task<UploadResult> uploadAsync = uploader.UploadAsync(attachment, deliverMessage.Message.MessageInfo);
                 if (uploadAsync == null)
                 {
@@ -175,12 +173,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
                 referencedPayload.Location = attachmentResult.DownloadUrl;
 
-                Logger.Trace($"Attachment {attachment.Id} uploaded succesfully");
+                Logger.Trace($"Attachment {Config.Encode(attachment.Id)} uploaded succesfully");
+                Logger.Info($"UploadAttachmentsStep -> Attachment {Config.Encode(attachment.Id)} uploaded succesfully");
                 return attachmentResult;
             }
             catch (Exception exception)
             {
-                Logger.Error($"Attachment {attachment.Id} cannot be uploaded because of an exception: {Environment.NewLine}" + exception);
+                Logger.Error($"Attachment {Config.Encode(attachment.Id)} cannot be uploaded because of an exception: {Config.Encode(Environment.NewLine)}" + Config.Encode(exception));
                 return UploadResult.FatalFail;
             }
         }

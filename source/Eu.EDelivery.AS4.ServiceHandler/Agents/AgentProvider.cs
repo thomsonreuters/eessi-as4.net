@@ -10,7 +10,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 {
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
     {
         private readonly IEnumerable<IAgent> _agents;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentProvider"/> class. Create a <see cref="AgentProvider"/> with the Core and Custom Agents

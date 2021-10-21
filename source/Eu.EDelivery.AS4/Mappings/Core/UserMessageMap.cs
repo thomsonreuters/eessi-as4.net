@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {

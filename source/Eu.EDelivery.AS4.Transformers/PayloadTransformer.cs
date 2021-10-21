@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class PayloadTransformer : ITransformer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.

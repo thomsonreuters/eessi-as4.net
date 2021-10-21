@@ -3,10 +3,11 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     [Description("Retrieve the SendingPMode that must be used to send the AS4Message")]
     public class RetrieveSendingPModeStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly IConfig _config;
 
         /// <summary>
@@ -73,14 +74,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             return pmode;
         }
-
         private SendingProcessingMode RetrievePMode(MessagingContext context)
         {
             string processingModeId = RetrieveProcessingModeId(context.SubmitMessage.Collaboration);
 
             SendingProcessingMode pmode = _config.GetSendingPMode(processingModeId);
 
-            Logger.Info($"{context.LogTag} SendingPMode \"{pmode.Id}\" was successfully retrieved for SubmitMessage");
+            Logger.Info($"{Config.Encode(context.LogTag)} SendingPMode \"{Config.Encode(pmode.Id)}\" was successfully retrieved for SubmitMessage");
 
             return pmode;
         }
@@ -102,14 +102,14 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Trace($"SendingPMode {pmode.Id} is valid for Submit Message"),
+                onValidationSuccess: result => Logger.Trace($"SendingPMode {Config.Encode(pmode.Id)} is valid for Submit Message"),
                 onValidationFailed: result =>
                 {
                     string description = 
                         result.AppendValidationErrorsToErrorMessage(
                             $"SendingPMode {pmode.Id} was invalid and cannot be used to assign to the SubmitMessage: ");
 
-                    Logger.Error(description);
+                    Logger.Error(Config.Encode(description));
 
                     throw new ConfigurationErrorsException(description);
                 });

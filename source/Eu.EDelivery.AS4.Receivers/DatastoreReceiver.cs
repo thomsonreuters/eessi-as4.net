@@ -11,7 +11,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Datastore;
 using Microsoft.EntityFrameworkCore;
-using NLog;
+using log4net;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
         System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _retrieveEntities = retrieveEntities;
         }
 
-        protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
+        protected override ILog Logger { get; } = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Start Receiving on the Data Store
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 throw new InvalidOperationException("The DatastoreReceiver is not configured");
             }
 
-            Logger.Trace($"Start Receiving on Datastore {_settings.DisplayString}");
+            Logger.Trace($"Start Receiving on Datastore {Config.Encode(_settings.DisplayString)}");
             StartPolling(messageCallback, cancellationToken);
         }
 
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            Logger.Trace($"Stop Receiving on Datastore {_settings.DisplayString}");
+            Logger.Trace($"Stop Receiving on Datastore {Config.Encode(_settings.DisplayString)}");
         }        
 
         #region Configuration
@@ -208,9 +208,9 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception exception)
             {
-                Logger.Error($"An error occured while polling the datastore: {exception.Message}");
-                Logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
-                Logger.Trace(exception.StackTrace);
+                Logger.Error($"An error occured while polling the datastore: {Config.Encode(exception.Message)}");
+                Logger.Error($"Polling on table {Config.Encode(Table)} with interval {Config.Encode(PollingInterval.TotalSeconds)} seconds");
+                Logger.Trace(Config.Encode(exception.StackTrace));
 
                 return Enumerable.Empty<Entity>();
             }
@@ -304,7 +304,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
-                Logger.Trace($"Update {entity.GetType().Name}.{updateFieldInfo.Name}={updateValue}");
+                Logger.Trace($"Update {Config.Encode(entity.GetType().Name)}.{Config.Encode(updateFieldInfo.Name)}={Config.Encode(updateValue)}");
 
                 updateFieldInfo.SetValue(
                     obj: entity,
@@ -382,17 +382,17 @@ namespace Eu.EDelivery.AS4.Receivers
             Function messageCallback,
             CancellationToken token)
         {
-            Logger.Debug($"Received message FROM {Table} WHERE {Filter}");
+            Logger.Debug($"Received message FROM {Config.Encode(Table)} WHERE {Config.Encode(Filter)}");
 
             using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
             {
                 if (stream == null)
                 {
-                    Logger.Error($"MessageBody cannot be retrieved for EbmsMessageId: {messageEntity.EbmsMessageId}");
+                    Logger.Error($"MessageBody cannot be retrieved for EbmsMessageId: {Config.Encode(messageEntity.EbmsMessageId)}");
                 }
                 else if (messageEntity.ContentType == null)
                 {
-                    Logger.Error($"ContentType cannot be found for EbmsMessageId: {messageEntity.EbmsMessageId}");
+                    Logger.Error($"ContentType cannot be found for EbmsMessageId: {Config.Encode(messageEntity.EbmsMessageId)}");
                 }
                 else
                 {
@@ -420,7 +420,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         protected override void HandleMessageException(Entity message, Exception exception)
         {
-            Logger.Error(exception.Message);
+            Logger.Error(Config.Encode(exception.Message));
 
             if (!(exception is AggregateException aggregate))
             {
@@ -435,13 +435,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void LogExceptionAndInner(Exception exception)
         {
-            Logger.Error(exception.Message);
-            Logger.Trace(exception.StackTrace);
+            Logger.Error(Config.Encode(exception.Message));
+            Logger.Trace(Config.Encode(exception.StackTrace));
 
             if (exception.InnerException != null)
             {
-                Logger.Error(exception.InnerException.Message);
-                Logger.Trace(exception.InnerException.StackTrace);
+                Logger.Error(Config.Encode(exception.InnerException.Message));
+                Logger.Trace(Config.Encode(exception.InnerException.StackTrace));
             }
         }
 

@@ -2,7 +2,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     {
         public const string Key = "temp:///";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Retrieve <see cref="Stream"/> contents from a given <paramref name="location"/>.

@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
@@ -11,7 +12,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     {
         private readonly Func<DatastoreContext> _createContext;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotifyExceptionHandler"/> class.

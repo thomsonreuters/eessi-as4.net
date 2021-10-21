@@ -11,9 +11,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private const string DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
         private const string DocumentIdentifierScheme = "busdox-docid-qns";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly HttpClient HttpClient = new HttpClient();
 
         [Info("SML Scheme", defaultValue: "iso6523-actorid-upis")]
@@ -157,7 +158,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static async Task<XmlDocument> RetrieveSmpMetaData(Uri smpServerUri)
         {
-            Logger.Info($"Contacting SMP server at {smpServerUri} to retrieve meta-data");
+            Logger.Info($"Contacting SMP server at {Config.Encode(smpServerUri)} to retrieve meta-data");
 
             HttpResponseMessage response = await HttpClient.GetAsync(smpServerUri);
 
@@ -198,7 +199,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             XmlNode endpoint = SelectServiceEndpointNode(smpMetaData);
             XmlNode certificateNode = endpoint.SelectSingleNode("*[local-name()='Certificate']");
 
-            Logger.Debug($"Decorate SendingPMode {pmode.Id} with SMP response from ESens SMP Server");
+            Logger.Debug($"Decorate SendingPMode {Config.Encode(pmode.Id)} with SMP response from ESens SMP Server");
 
             OverwritePushProtocolUrl(pmode, endpoint);
             DecorateMessageProperties(pmode, smpMetaData);
@@ -274,7 +275,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     "No ServiceEndpointList/Endpoint/EndpointReference/Address element found in SMP meta-data");
             }
 
-            Logger.Trace($"Override SendingPMode.PushConfiguration.Protocol with {{Url={address.InnerText}}}");
+            Logger.Trace($"Override SendingPMode.PushConfiguration.Protocol with {{Url={Config.Encode(address.InnerText)}}}");
             return address;
         }
 
@@ -353,7 +354,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     "Unable to complete CollaborationInfo: no ServiceInformation/DocumentIdentifier element not found in SMP metadata");
             }
 
-            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{Action={documentIdentifier.InnerText}}}");
+            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{Action={Config.Encode(documentIdentifier.InnerText)}}}");
             return documentIdentifier.InnerText;
         }
 
@@ -377,7 +378,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
                     ?.Value;
 
-            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{ServiceType={serviceType}, ServiceValue={serviceValue}}}");
+            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{ServiceType={Config.Encode(serviceType)}, ServiceValue={Config.Encode(serviceValue)}}}");
             return new Service
             {
                 Value = serviceValue,
@@ -395,7 +396,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 password: (string)null);
 
             const string responderRole = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
-            Logger.Trace($"Override MessagingPackaging.PartyInfo.ToParty with {{Role={responderRole}}}");
+            Logger.Trace($"Override MessagingPackaging.PartyInfo.ToParty with {{Role={Config.Encode(responderRole)}}}");
 
             pmode.MessagePackaging.PartyInfo.ToParty = new Party(
                 role: responderRole,

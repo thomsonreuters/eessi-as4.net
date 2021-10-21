@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using FluentValidation;
 using FluentValidation.Results;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Validators
 {
@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Validators
     /// </summary>
     public class SendingProcessingModeValidator : AbstractValidator<SendingProcessingMode>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendingProcessingModeValidator"/> class.

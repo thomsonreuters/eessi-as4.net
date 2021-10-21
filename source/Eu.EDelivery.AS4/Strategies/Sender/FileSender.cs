@@ -7,7 +7,9 @@ using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Common;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
@@ -19,7 +21,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     {
         public const string Key = "FILE";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         [Info("Destination path")]
         private string Location { get; set; }
@@ -79,13 +81,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
 
             string location = CombineDestinationFullName(envelope.Message.MessageInfo.MessageId, Location);
-            Logger.Trace($"Sending DeliverMessage to {location}");
+            Logger.Trace($"Sending DeliverMessage to {Config.Encode(location)}");
+            Logger.Info($"FileSender -> Sending DeliverMessage to {Config.Encode(location)}");
 
             SendResult result = await TryWriteContentsToFileAsync(location, envelope.SerializeMessage());
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Deliver) DeliverMessage {envelope.Message.MessageInfo.MessageId} is successfully send to \"{location}\"");
+                    $"(Deliver) DeliverMessage {Config.Encode(envelope.Message.MessageInfo.MessageId)} is successfully send to \"{Config.Encode(location)}\"");
             }
 
             return result;
@@ -129,13 +132,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, Location);
-            Logger.Trace($"Sending NotifyMessage to {location}");
+            Logger.Trace($"Sending NotifyMessage to {Config.Encode(location)}");
 
             SendResult result = await TryWriteContentsToFileAsync(location, notifyMessage.NotifyMessage);
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully send to \"{location}\"");
+                    $"(Notify) NotifyMessage {Config.Encode(notifyMessage.MessageInfo.MessageId)}  is successfully send to \" {Config.Encode(location)}\"");
             }
 
             return result;
@@ -160,7 +163,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                Logger.Error(Config.Encode(ex));
                 return SendResult.FatalFail;
             }
         }
@@ -182,7 +185,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                            if (unauthorizedEx != null)
                            {
                                Logger.Error(
-                                   $"A fatal error occured while uploading the file to \"{locationPath}\": {unauthorizedEx.Message}");
+                                   $"A fatal error occured while uploading the file to \"{Config.Encode(locationPath)}\": {Config.Encode(unauthorizedEx.Message)}");
 
                                return SendResult.FatalFail;
                            }
@@ -195,7 +198,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                            {
                                Logger.Error(
                                    "(Deliver) Uploading file will be retried "
-                                   + $"because a file already exists with the same name: {fileAlreadyExsitsEx}");
+                                   + $"because a file already exists with the same name: {Config.Encode(fileAlreadyExsitsEx)}");
 
                                // If we happen to be in a concurrent scenario where there already
                                // exists a file with the same name, try to upload the file as well.
@@ -208,7 +211,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
                            string desc = String.Join(", ", exs);
                            Logger.Error(
-                               $"An error occured while uploading the file to \"{locationPath}\": {desc}, will be retried");
+                               $"An error occured while uploading the file to \"{Config.Encode(locationPath)}\": {Config.Encode(desc)}, will be retried");
 
                            return SendResult.RetryableFail;
 

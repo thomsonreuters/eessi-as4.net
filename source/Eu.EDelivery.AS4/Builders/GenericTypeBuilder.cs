@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Builders
 {
@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Builders
         private readonly Type _type;
         private object[] _args;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private GenericTypeBuilder(Type type)
         {
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Builders
             if (type == null)
             {
                 string message = $"Type not found: {typeString}";
-                LogManager.GetCurrentClassLogger().Fatal(message);
+                Logger.Fatal(message);
                 throw new TypeLoadException(message);                
             }
 

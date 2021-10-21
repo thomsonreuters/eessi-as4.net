@@ -9,13 +9,13 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// <summary>
     /// Builder to create <see cref="OutMessage"/> Models
     /// </summary>
-    internal class OutMessageBuilder
+    public class OutMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
         private readonly IPMode _pmode;
 
-        private OutMessageBuilder(MessageUnit messageUnit, string contentType, IPMode pmode)
+        public OutMessageBuilder(MessageUnit messageUnit, string contentType, IPMode pmode)
         {
             _messageUnit = messageUnit;
             _contentType = contentType;
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             return outMessage;
         }
 
-        private OutMessage Build()
+        public OutMessage Build()
         {
             var outMessage = new OutMessage(_messageUnit.MessageId)
             {

@@ -12,7 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using NLog;
+using log4net;
 using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Services
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Services
         private readonly DatastoreContext _context;
         private readonly IDatastoreRepository _repository;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PiggyBackingService"/> class.
@@ -102,8 +102,8 @@ namespace Eu.EDelivery.AS4.Services
                         if (!pullRequestSigned && signal.IsSigned)
                         {
                             Logger.Warn(
-                                $"Can't PiggyBack {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} because SignalMessage is signed "
-                                + $"while the SendingPMode {sendingPMode.Id} used is not configured for signing");
+                                $"Can't PiggyBack {Config.Encode(toBePiggyBacked.GetType().Name)} {Config.Encode(toBePiggyBacked.MessageId)} because SignalMessage is signed "
+                                + $"while the SendingPMode {Config.Encode(sendingPMode.Id)} used is not configured for signing");
                         }
                         else
                         {
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Services
                     else if (toBePiggyBacked != null)
                     {
                         Logger.Warn(
-                            $"Will not select {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} "
+                            $"Will not select {Config.Encode(toBePiggyBacked.GetType().Name)} {Config.Encode(toBePiggyBacked.MessageId)} "
                             + "for PiggyBacking because only Receipts and Errors are allowed SignalMessages to be PiggyBacked with PullRequests");
                     }
                     else
@@ -209,8 +209,8 @@ namespace Eu.EDelivery.AS4.Services
                         type: RetryType.PiggyBack);
 
                     Logger.Debug(
-                        $"Insert RetryReliability for ToBePiggyBacked SignalMessage OutMessage {m.EbmsMessageId} with "
-                        + $"{{RetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
+                        $"Insert RetryReliability for ToBePiggyBacked SignalMessage OutMessage {Config.Encode(m.EbmsMessageId)} with "
+                        + $"{{RetryCount={Config.Encode(r.MaxRetryCount)}, RetryInterval={Config.Encode(r.RetryInterval)}}}");
 
                     _repository.InsertRetryReliability(r);
                 }

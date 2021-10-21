@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 using Timer = System.Timers.Timer;
 
 namespace Eu.EDelivery.AS4.Receivers
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         protected enum Interval
         {

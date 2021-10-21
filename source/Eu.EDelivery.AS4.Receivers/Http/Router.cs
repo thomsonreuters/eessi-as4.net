@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Http.Get;
 using Eu.EDelivery.AS4.Receivers.Http.Post;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers.Http
 {
@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         private readonly Collection<IHttpGetHandler> _getHandlers;
         private readonly Collection<IHttpPostHandler> _postHandlers;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Router"/> class.

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using Microsoft.EntityFrameworkCore;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -13,7 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     [Description("Confirms that the message is ready to be sent.")]
     public class SetMessageToBeSentStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _messageStore;
@@ -58,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     $"{nameof(SetMessageToBeSentStep)} requires an AS4Message to mark for sending but no AS4Message is present in the MessagingContext");
             }
 
-            Logger.Trace($"{messagingContext.LogTag} Set the message's Operation=ToBeSent");
+            Logger.Trace($"{Config.Encode(messagingContext.LogTag)} Set the message's Operation=ToBeSent");
             if (messagingContext.MessageEntityId == null)
             {
                 throw new InvalidOperationException(
@@ -76,6 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     messagingContext.SendingPMode?.Reliability?.ReceptionAwareness);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
+                messagingContext.OutMessage = context.OutMessages.AsNoTracking().FirstOrDefault(p => p.Id == messagingContext.MessageEntityId.Value);
             }
 
             return StepResult.Success(messagingContext);

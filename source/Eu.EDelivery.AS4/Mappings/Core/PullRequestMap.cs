@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -35,16 +37,24 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             {
                 throw new ArgumentNullException(nameof(model));
             }
+            string refToMsgId = model.RefToMessageId;
+            XmlDocument xml = new XmlDocument();
+            XmlElement refToMessageId = xml.CreateElement("eb", "RefToMessageId", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/");
+            refToMessageId.InnerText = refToMsgId;
+            List<XmlElement> xmlElements = new List<XmlElement>();
+            xmlElements.Add(refToMessageId);
 
             return new Xml.SignalMessage
             {
                 MessageInfo = new Xml.MessageInfo
                 {
+                    Timestamp = model.Timestamp.UtcDateTime,
                     MessageId = model.MessageId,
+                    RefToMessageId = model.RefToMessageId,
                 },
                 PullRequest = new Xml.PullRequest
                 {
-                    mpc = model.Mpc
+                    Any = xmlElements.ToArray(),
                 }
             };
         }

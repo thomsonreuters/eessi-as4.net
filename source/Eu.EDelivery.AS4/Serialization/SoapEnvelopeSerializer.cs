@@ -12,7 +12,7 @@ using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Xml;
-using NLog;
+using log4net;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using NotSupportedException = System.NotSupportedException;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public partial class SoapEnvelopeSerializer : ISerializer
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private static readonly XmlWriterSettings DefaultXmlWriterSettings = new XmlWriterSettings
         {
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static Messaging CreateMessagingHeader(AS4Message message)
+        public static Messaging CreateMessagingHeader(AS4Message message)
         {
             object ToGeneralMessageUnit(MessageUnit u)
             {
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return messagingHeader;
         }
 
-        private static XmlNode GetSecurityHeader(AS4Message message)
+        public static XmlNode GetSecurityHeader(AS4Message message)
         {
             if (message.SecurityHeader.IsSigned == false 
                 && message.SecurityHeader.IsEncrypted == false)

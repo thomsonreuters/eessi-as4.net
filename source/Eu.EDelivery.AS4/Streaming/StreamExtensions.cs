@@ -1,4 +1,5 @@
 ﻿#define CONCURRENT_IO
+using log4net;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -6,6 +7,8 @@ namespace Eu.EDelivery.AS4.Streaming
 {
     public static class StreamExtensions
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Serialize to series of bytes.
         /// </summary>
@@ -38,6 +41,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <returns></returns>
         public static async Task CopyToFastAsync(this Stream source, Stream target)
         {
+            Logger.Info($"CopyToFastAsync: Start.");
             // Set the length of the targetstream upfront if we can do that.
             // This can improve performance significantly.
             if (source.CanSeek && target.CanSeek)
@@ -55,10 +59,13 @@ namespace Eu.EDelivery.AS4.Streaming
             byte[] buffer = new byte[ioBufferSize];
             int curoff = 0;
 
+            Logger.Info($"CopyToFastAsync: Read async from source : Start.");
             Task<int> readTask = source.ReadAsync(buffer, curoff, bufferSize);
+            Logger.Info($"CopyToFastAsync: Read async from source : End.");
             Task writeTask = Task.CompletedTask;
             int len;
 
+            Logger.Info($"CopyToFastAsync: while loop : Start.");
             while ((len = await readTask.ConfigureAwait(false)) != 0)
             {
                 await writeTask.ConfigureAwait(false);
@@ -67,11 +74,14 @@ namespace Eu.EDelivery.AS4.Streaming
                 curoff ^= bufferSize;
                 readTask = source.ReadAsync(buffer, curoff, bufferSize);
             }
+            Logger.Info($"CopyToFastAsync: while loop : End.");
 
             await writeTask.ConfigureAwait(false);
+            Logger.Info($"CopyToFastAsync: writeTask ConfigureAwait : End.");
 #else
             await source.CopyToAsync(target).ConfigureAwait(false);
 #endif
+            Logger.Info($"CopyToFastAsync: End.");
         }
 
     }

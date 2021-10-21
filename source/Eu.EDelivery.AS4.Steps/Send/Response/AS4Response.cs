@@ -7,7 +7,8 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using Eu.EDelivery.AS4.Common;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
@@ -17,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     internal class AS4Response : IAS4Response
     {
         private readonly HttpWebResponse _httpWebResponse;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Response" /> class.
@@ -88,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         {
             if (request?.PrimaryMessageUnit != null && response.PrimaryMessageUnit != null)
             {
-                Logger.Info($"Sending AS4Message {request.GetPrimaryMessageId()} results in: {request.PrimaryMessageUnit.GetType().Name} -> {response.PrimaryMessageUnit.GetType().Name} ");
+                Logger.Info($"Sending AS4Message {Config.Encode(request.GetPrimaryMessageId())} results in: {Config.Encode(request.PrimaryMessageUnit.GetType().Name)} -> {Config.Encode(response.PrimaryMessageUnit.GetType().Name)} ");
             }
 
             foreach (MessageUnit mu in response.MessageUnits)
@@ -96,10 +97,10 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 switch (mu)
                 {
                     case Error err:
-                        Logger.Error($"Error message {err.FormatErrorLines()} response received for message with with ebMS Id {mu.RefToMessageId}");
+                        Logger.Error($"Error message {Config.Encode(err.FormatErrorLines())} response received for message with with ebMS Id {Config.Encode(mu.RefToMessageId)}");
                         break;
                     case Receipt r:
-                        Logger.Debug($"{(r.NonRepudiationInformation != null ? "Non-Repudiation " : String.Empty)}Receipt message response received for message with ebMS Id {mu.RefToMessageId}");
+                        Logger.Debug($"{Config.Encode((r.NonRepudiationInformation != null ? "Non-Repudiation " : String.Empty))}Receipt message response received for message with ebMS Id {Config.Encode(mu.RefToMessageId)}");
                         break;
                 }
             }
@@ -120,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                         string responseContent = await streamReader.ReadToEndAsync();
                         if (!string.IsNullOrEmpty(responseContent))
                         {
-                            Logger.Debug(responseContent);
+                            Logger.Debug(Config.Encode(responseContent));
                         }
                     }
 
@@ -133,7 +134,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             }
             catch (Exception exception)
             {
-                Logger.Error(exception.Message);
+                Logger.Error(Config.Encode(exception.Message));
                 return AS4Message.Empty;
             }
             finally

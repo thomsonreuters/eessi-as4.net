@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Services.Journal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Agents
 {
     internal class Agent : IAgent
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IReceiver _receiver;
         private readonly Transformer _transformerConfig;
@@ -155,6 +157,21 @@ namespace Eu.EDelivery.AS4.Agents
             return task;
         }
 
+        public async Task<MessagingContext> Process(MessagingContext context, CancellationToken cancellation)
+        {
+            Logger.Info($"Agent->Process : Call Started");
+            StepResult stepResult = await _steps.ExecuteStepsAsync(context);
+            IEnumerable<JournalLogEntry> journalWithAgentLocation =
+                stepResult.Journal.Select(j =>
+                {
+                    j.AddAgentLocation(AgentConfig);
+                    return j;
+                });
+
+            Logger.Info($"Agent->Process : Call End");
+            return stepResult.MessagingContext;
+        }
+
         protected async Task<MessagingContext> OnReceived(ReceivedMessage message, CancellationToken cancellation)
         {
             MessagingContext context;
@@ -177,8 +194,8 @@ namespace Eu.EDelivery.AS4.Agents
             }
             catch (Exception exception)
             {
-                Logger.Error($"Could not transform message: {exception.Message}");
-                Logger.Trace(exception.StackTrace);
+                Logger.Error($"Could not transform message: {Config.Encode(exception.Message)}");
+                Logger.Trace(Config.Encode(exception.StackTrace));
 
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }

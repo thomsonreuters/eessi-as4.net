@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// <summary>
     /// Builder to create <see cref="InMessage"/> Models
     /// </summary>
-    internal class InMessageBuilder
+    public class InMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;

@@ -12,7 +12,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Transformers
     public abstract class MinderNotifyMessageTransformer : ITransformer
     {
         protected abstract string MinderUriPrefix { get; }
-        protected Logger Logger => LogManager.GetCurrentClassLogger();
+        protected ILog Logger => LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -65,11 +65,11 @@ namespace Eu.EDelivery.AS4.Transformers
             SignalMessage signalMessage = as4Message.FirstSignalMessage;
             if (signalMessage != null)
             {
-                Logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
+                Logger.Info($"Minder Create Notify Message as {Config.Encode(signalMessage.GetType().Name)}");
             }
             else
             {
-                Logger.Warn($"{as4Message.FirstUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
+                Logger.Warn($"{Config.Encode(as4Message.FirstUserMessage?.MessageId)} AS4Message does not contain a primary SignalMessage");
             }
 
             return await CreateMinderNotifyMessageEnvelope(as4Message, receivedEntityType).ConfigureAwait(false);

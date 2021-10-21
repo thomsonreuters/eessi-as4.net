@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation;
 using FluentValidation.Results;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Watchers
 {
@@ -27,7 +29,7 @@ namespace Eu.EDelivery.AS4.Watchers
         private readonly FileSystemWatcher _watcher;
 
         // ReSharper disable once StaticMemberInGenericType - same instance will be used for the same generic type but it's not a problem.
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly XmlSerializer XmlSerializer = new XmlSerializer(typeof(T));
         private static readonly string PModeName = 
             typeof(T) == typeof(SendingProcessingMode) 
@@ -130,7 +132,7 @@ namespace Eu.EDelivery.AS4.Watchers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while trying to get {PModeName} files: {ex.Message}");
+                Logger.Error($"An error occured while trying to get {Config.Encode(PModeName)} files: {Config.Encode(ex.Message)}");
                 return new List<FileInfo>();
             }
         }
@@ -151,7 +153,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (key != null)
             {
-                Logger.Trace($"Remove {PModeName} with Id: " + key);
+                Logger.Trace($"Remove {Config.Encode(PModeName)} with Id: " + key);
                 _pmodes.TryRemove(key, out _);
             }
         }
@@ -164,7 +166,7 @@ namespace Eu.EDelivery.AS4.Watchers
             {
                 if (_fileEventCache.Contains(fullPath))
                 {
-                    Logger.Trace($"{PModeName} {fullPath} has already been handled.");
+                    Logger.Trace($"{Config.Encode(PModeName)} {Config.Encode(fullPath)} has already been handled.");
                     return;
                 }
 
@@ -174,7 +176,7 @@ namespace Eu.EDelivery.AS4.Watchers
             T pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
-                Logger.Warn($"File at: \'{fullPath}\' cannot be converted to a {PModeName} because the XML in the file isn\'t valid.");
+                Logger.Warn($"File at: \'{Config.Encode(fullPath)}\' cannot be converted to a {Config.Encode(PModeName)} because the XML in the file isn\'t valid.");
 
                 // Since the PMode that we expect in this file is invalid, it
                 // must be removed from our cache.
@@ -185,8 +187,8 @@ namespace Eu.EDelivery.AS4.Watchers
             ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
             if (!pmodeValidation.IsValid)
             {
-                Logger.Warn($"Invalid {PModeName} at: \'{fullPath}\'");
-                pmodeValidation.LogErrors(LogManager.GetCurrentClassLogger());
+                Logger.Warn($"Invalid {Config.Encode(PModeName)} at: \'{Config.Encode(fullPath)}\'");
+                pmodeValidation.LogErrors(Logger);
 
                 // Since the PMode that we expect isn't valid according to the validator, it
                 // must be removed from our cache.
@@ -198,11 +200,11 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (_pmodes.ContainsKey(pmode.Id))
             {
-                Logger.Warn($"Existing PMode {pmode.Id} will be overwritten with PMode from {fullPath}");
+                Logger.Warn($"Existing PMode {Config.Encode(pmode.Id)} will be overwritten with PMode from {Config.Encode(fullPath)}");
             }
             else
             {
-                Logger.Trace($"Add new {PModeName} with Id: " + pmode.Id);
+                Logger.Trace($"Add new {Config.Encode(PModeName)} with Id: " + pmode.Id);
             }
 
             _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
@@ -235,17 +237,17 @@ namespace Eu.EDelivery.AS4.Watchers
                         && e.ObjectBeingDeserialized is ReplyHandling)
                     {
                         Logger.Warn(
-                            $"ReceivingPMode at {path} still has a ReplyHandling.SendingPMode element."
-                            + $"{Environment.NewLine} SendingPModes are not used anymore for responding to AS4 messages. "
+                            $"ReceivingPMode at {Config.Encode(path)} still has a ReplyHandling.SendingPMode element."
+                            + $"{Config.Encode(Environment.NewLine)} SendingPModes are not used anymore for responding to AS4 messages. "
                             + "Please upgrade your PMode by executing the script ./scripts/copy-responsepmode-to-receivingpmode.ps1."
-                            + $"{Environment.NewLine} For more information see the wiki section: \"Remove Sending PMode as responding PMode\"");
+                            + $"{Config.Encode(Environment.NewLine)} For more information see the wiki section: \"Remove Sending PMode as responding PMode\"");
                     }
                     else
                     {
                         Logger.Warn(
-                            $"Unknown XML element found while deserializing the {PModeName} -> {e.Element.LocalName} "
-                            + $"at {path} ({e.LineNumber},{e.LinePosition}). {Environment.NewLine} "
-                            + $"Expected elements: {Environment.NewLine} - {e.ExpectedElements.Replace(", ", Environment.NewLine + " - ")}");
+                            $"Unknown XML element found while deserializing the {Config.Encode(PModeName)} -> {Config.Encode(e.Element.LocalName)} "
+                            + $"at {Config.Encode(path)} ({Config.Encode(e.LineNumber)},{Config.Encode(e.LinePosition)}). {Config.Encode(Environment.NewLine)} "
+                            + $"Expected elements: {Config.Encode(Environment.NewLine)} - {e.ExpectedElements.Replace(", ", Environment.NewLine + " - ")}");
                     }
 
                 }
@@ -261,11 +263,11 @@ namespace Eu.EDelivery.AS4.Watchers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while deserializing {PModeName} at {path}");
-                Logger.Error(ex.Message);
+                Logger.Error($"An error occured while deserializing {Config.Encode(PModeName)} at {Config.Encode(path)}");
+                Logger.Error(Config.Encode(ex.Message));
                 if (ex.InnerException != null)
                 {
-                    Logger.Error(ex.InnerException.Message);
+                    Logger.Error(Config.Encode(ex.InnerException.Message));
                 }
 
                 return null;

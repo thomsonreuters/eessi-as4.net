@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -7,13 +8,13 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
     internal class OutboundExceptionHandler : IAgentExceptionHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly Func<DatastoreContext> _createContext;
         private readonly IConfig _configuration;
         private readonly IAS4MessageBodyStore _bodyStore;

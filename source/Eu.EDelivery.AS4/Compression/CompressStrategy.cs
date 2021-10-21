@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Compression
 {
@@ -16,7 +18,7 @@ namespace Eu.EDelivery.AS4.Compression
         private readonly IEnumerable<Attachment> _attachments;
         private readonly IEnumerable<PartInfo> _partInfos;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CompressStrategy"/> class.
@@ -155,19 +157,19 @@ namespace Eu.EDelivery.AS4.Compression
             {
                 if (!attachment.IsCompressed)
                 {
-                    Logger.Debug($"Skip Attachment {attachment.Id} because it's not compressed");
+                    Logger.Debug($"Skip Attachment {Config.Encode(attachment.Id)} because it's not compressed");
                     continue;
                 }
 
                 if (!attachment.HasMimeType)
                 {
                     throw new InvalidDataException(
-                        $"Cannot decompress attachment \"{attachment.Id}\" because it hasn't got a PartProperty called \"MimeType\"");
+                        $"Cannot decompress attachment \"{Config.Encode(attachment.Id)}\" because it hasn't got a PartProperty called \"MimeType\"");
                 }
 
-                Logger.Trace($"Attachment {attachment.Id} will be decompressed");
+                Logger.Trace($"Attachment {Config.Encode(attachment.Id)} will be decompressed");
                 DecompressAttachment(_partInfos, attachment);
-                Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
+                Logger.Debug($"Attachment {Config.Encode(attachment.Id)} is decompressed to a type of {Config.Encode(attachment.ContentType)}");
             }
         }
 

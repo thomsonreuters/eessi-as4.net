@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <summary>
         /// Soap Envelope Builder
         /// </summary>
-        internal class SoapEnvelopeBuilder
+        public class SoapEnvelopeBuilder
         {
             private static readonly Dictionary<SoapNamespace, XmlQualifiedName> NamespaceInformation
                 = new Dictionary<SoapNamespace, XmlQualifiedName>()

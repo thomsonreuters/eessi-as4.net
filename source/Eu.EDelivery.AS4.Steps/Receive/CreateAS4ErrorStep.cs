@@ -11,7 +11,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using NLog;
+using log4net;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
 using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep" /> class.
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (errorResult != null)
             {
-                Logger.Error($"AS4 Error(s) created with {errorResult.Code.GetString()} {errorResult.Alias}, {errorResult.Description}");
+                Logger.Error($"AS4 Error(s) created with {Config.Encode(errorResult.Code.GetString())} {Config.Encode(errorResult.Alias)}, {Config.Encode(errorResult.Description)}");
 
                 await InsertInExceptionsForNowExceptionedInMessageAsync(
                     messagingContext.AS4Message.SignalMessages,
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
                 Logger.Info(
-                    $"{messagingContext.LogTag} {errorMessage.MessageUnits.Count()} Error(s) has been created for received AS4 UserMessages");
+                    $"{Config.Encode(messagingContext.LogTag)} {Config.Encode(errorMessage.MessageUnits.Count())} Error(s) has been created for received AS4 UserMessages");
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     await ex.SetPModeInformationAsync(receivePMode);
 
                     Logger.Debug(
-                        $"Insert InException for {signal.GetType().Name} {signal.MessageId} with {{Exception={occurredError.Description}}}");
+                        $"Insert InException for {Config.Encode(signal.GetType().Name)} {Config.Encode(signal.MessageId)} with {{Exception={Config.Encode(occurredError.Description)}}}");
 
                     repository.InsertInException(ex);
                 }
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     m => ebmsMessageIds.Contains(m.EbmsMessageId),
                     m =>
                     {
-                        Logger.Debug($"Update {m.EbmsMessageType} InMessage {m.EbmsMessageId} Status=Exception");
+                        Logger.Debug($"Update {Config.Encode(m.EbmsMessageType)} InMessage {Config.Encode(m.EbmsMessageId)} Status=Exception");
                         m.SetStatus(InStatus.Exception);
                     });
 

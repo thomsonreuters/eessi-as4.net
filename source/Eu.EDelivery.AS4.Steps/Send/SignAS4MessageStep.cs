@@ -7,10 +7,11 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using NLog;
+using log4net;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Services.Journal;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     [Description("This step signs the AS4 Message if signing is enabled in the Sending PMode")]
     public class SignAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly ICertificateRepository _repository;
 
@@ -87,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            Logger.Info($"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Sign AS4Message with given signing information of the PMode");
+            Logger.Info($"(Outbound)[{Config.Encode(messagingContext.AS4Message.GetPrimaryMessageId())}] Sign AS4Message with given signing information of the PMode");
 
             X509Certificate2 certificate = RetrieveCertificate(signInfo);
             var settings =
@@ -122,7 +123,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         $"{nameof(SignAS4MessageStep)} requires a SendingPMode when the primary message unit of the AS4Message is either an UserMessage or a PullRequest");
                 }
 
-                Logger.Trace($"Use SendingPMode {sendingPMode.Id} for signing because the primary message unit is a UserMessage or a PullRequest");
+                Logger.Trace($"Use SendingPMode {Config.Encode(sendingPMode.Id)} for signing because the primary message unit is a UserMessage or a PullRequest");
                 return sendingPMode.Security?.Signing;
             }
 
@@ -141,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 }
 
-                Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is a Receipt");
+                Logger.Trace($"Use ReceivingPMode {Config.Encode(receivingPMode.Id)} for signing because the primary message unit of the AS4Message is a Receipt");
                 return receivingPMode.ReplyHandling?.ResponseSigning;
             }
 
@@ -154,7 +155,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     return null;
                 }
 
-                Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is an Error");
+                Logger.Trace($"Use ReceivingPMode {Config.Encode(receivingPMode.Id)} for signing because the primary message unit of the AS4Message is an Error");
                 return receivingPMode.ReplyHandling?.ResponseSigning;
             }
 
@@ -170,12 +171,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                Logger.Error(exception.Message);
+                Logger.Error(Config.Encode(exception.Message));
                 if (exception.InnerException != null)
                 {
-                    Logger.Error(exception.InnerException.Message);
+                    Logger.Error(Config.Encode(exception.InnerException.Message));
                 }
-                Logger.Trace(exception.StackTrace);
+                Logger.Trace(Config.Encode(exception.StackTrace));
                 throw;
             }
         }

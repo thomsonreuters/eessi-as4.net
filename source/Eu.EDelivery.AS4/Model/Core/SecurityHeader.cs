@@ -5,7 +5,7 @@ using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -14,6 +14,8 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class SecurityHeader
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public bool IsSigned { get; private set; }
         public bool IsEncrypted { get; private set; }
 
@@ -153,11 +155,30 @@ namespace Eu.EDelivery.AS4.Model.Core
             return _securityHeaderElement;
         }
 
+        public static XmlElement CreateSecurityHeaderWithSaml(XmlElement childElement)
+        {
+            try
+            {
+                var xmlElement = CreateSecurityHeaderElement();
+                XmlNode samlNode = xmlElement.OwnerDocument.ImportNode(childElement, true);
+                xmlElement.AppendChild(samlNode);
+
+                return xmlElement;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                throw;
+            }
+        }
+
         private static XmlElement CreateSecurityHeaderElement()
         {
             var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
 
             var securityHeaderElement = xmlDocument.CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
+            securityHeaderElement.SetAttribute("mustUnderstand", Constants.Namespaces.Soap12, "true");
+
             xmlDocument.AppendChild(securityHeaderElement);
 
             return securityHeaderElement;
@@ -227,7 +248,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().Error(ex);
+                Logger.Error(ex);
                 return Enumerable.Empty<System.Security.Cryptography.Xml.Reference>();
             }
         }

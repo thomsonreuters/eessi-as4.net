@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         public const string Key = "ftp://";
 
         private readonly IConfig _config;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpPayloadRetriever" /> class

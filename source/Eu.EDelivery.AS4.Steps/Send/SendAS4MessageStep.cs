@@ -18,7 +18,7 @@ using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     [Description("This step makes sure that an AS4 Message that has been processed, is sent to its destination")]
     public class SendAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
@@ -86,12 +86,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     $"{nameof(SendAS4MessageStep)} requires a MessagingContext with a ReceivedStream or an AS4Message to correctly send the message");
             }
 
-            if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message.IsPullRequest == false)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(SendAS4MessageStep)} expects a PullRequest AS4Message when the MessagingContext does not contain a ReceivedStream");
-            }
-
             PushConfiguration pushConfig = GetPushConfiguration(messagingContext.SendingPMode, messagingContext.ReceivingPMode);
             if (pushConfig?.Protocol?.Url == null)
             {
@@ -99,9 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     "Message cannot be send because neither the Sending or Receiving PMode has a Protocol.Url child in a <PushConfiguration/> or <ResponseConfiguration/> element");
             }
 
-            AS4Message as4Message = await DeserializeUnderlyingStreamIfPresentAsync(
-                messagingContext.ReceivedMessage,
-                otherwise: messagingContext.AS4Message);
+            AS4Message as4Message = messagingContext.AS4Message;
 
             try
             {
@@ -126,11 +118,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (sendingPMode != null)
             {
-                Logger.Trace($"Use SendingPMode {sendingPMode.Id} for sending the AS4Message");
+                Logger.Trace($"Use SendingPMode {Config.Encode(sendingPMode.Id)} for sending the AS4Message");
                 return sendingPMode.PushConfiguration;
             }
 
-            Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for sending the AS4Message");
+            Logger.Trace($"Use ReceivingPMode {Config.Encode(receivingPMode.Id)} for sending the AS4Message");
             return receivingPMode?.ReplyHandling?.ResponseConfiguration;
         }
 
@@ -161,7 +153,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private HttpWebRequest CreateWebRequest(PushConfiguration pushConfig, string contentType)
         {
             string url = pushConfig.Protocol.Url;
-            Logger.Trace($"Creating WebRequest to {url}");
+            Logger.Trace($"Creating WebRequest to {Config.Encode(url)}");
 
             HttpWebRequest request = _httpClient.Request(url, contentType);
             X509Certificate2 clientCert = RetrieveClientCertificate(pushConfig.TlsConfiguration);
@@ -229,7 +221,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 request.AllowWriteStreamBuffering = false;
 
-                Logger.Debug($"Send AS4Message to {request.RequestUri}");
+                Logger.Debug($"Send AS4Message to {Config.Encode(request.RequestUri)}");
                 using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
                 {
                     if (ctx.ReceivedMessage != null)
@@ -253,8 +245,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 if (exception.Status == WebExceptionStatus.ConnectFailure
                     && (ctx.AS4Message?.IsPullRequest ?? false))
                 {
-                    Logger.Trace($"The PullRequest could not be send to {request.RequestUri} due to a WebException");
-                    Logger.Trace(exception.Message);
+                    Logger.Trace($"The PullRequest could not be send to {Config.Encode(request.RequestUri)} due to a WebException");
+                    Logger.Trace(Config.Encode(exception.Message));
                 }
 
                 Logger.ErrorDeep(exception);
@@ -264,7 +256,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> HandleHttpResponseAsync(HttpWebRequest request, MessagingContext ctx)
         {
-            Logger.Trace($"AS4Message received from: {request.Address}");
+            Logger.Trace($"AS4Message received from: {Config.Encode(request.Address)}");
             (HttpWebResponse webResponse, WebException exception) =
                 await _httpClient.Respond(request)
                                  .ConfigureAwait(false);
@@ -303,18 +295,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     service.UpdateAS4MessageForSendResult(
                         messageId: ctx.MessageEntityId.Value,
                         status: result);
-
-                    await db.SaveChangesAsync()
-                            .ConfigureAwait(false);
-                }
-            }
-
-            if (ctx.AS4Message?.IsPullRequest == true)
-            {
-                using (DatastoreContext db = _createDatastore())
-                {
-                    var service = new PiggyBackingService(db);
-                    service.ResetSignalMessagesToBePiggyBacked(ctx.AS4Message.SignalMessages, result);
 
                     await db.SaveChangesAsync()
                             .ConfigureAwait(false);

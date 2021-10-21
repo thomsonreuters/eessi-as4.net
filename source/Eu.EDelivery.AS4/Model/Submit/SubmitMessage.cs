@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml;
+using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
@@ -25,6 +26,11 @@ namespace Eu.EDelivery.AS4.Model.Submit
         public SendingProcessingMode PMode { get; set; }
 
         public bool HasPayloads => Payloads != null && Payloads?.Length != 0;
+
+        /// <summary>
+        /// SamlToken Element.
+        /// </summary>
+        public XmlElement SamlToken { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitMessage"/> class. 

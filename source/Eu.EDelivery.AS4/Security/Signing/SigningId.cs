@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Security.Signing
 
         public string BodySecurityId { get; } = $"body-{Guid.NewGuid()}";
 
+        public string SamlSecurityId { get; } = $"soapheader-2";
+
         public SigningId() { }
 
         public SigningId(string headerSecurityId, string bodySecurityId)

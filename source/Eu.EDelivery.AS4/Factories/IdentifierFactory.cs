@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Factories
     /// </summary>
     public class IdentifierFactory
     {
-        private const string DefaultIdFormat = "{GUID}@{IPADDRESS}";
+        private const string DefaultIdFormat = "A{EPOC}.{GUID}@{EPOC}";
 
         private static readonly Regex MacroMatchRegex;
         private static readonly Dictionary<string, Func<string>> Macros;
@@ -28,8 +28,15 @@ namespace Eu.EDelivery.AS4.Factories
             {
                 {"GUID", () => Guid.NewGuid().ToString()},
                 {"MACHINENAME", Dns.GetHostName},
-                {"IPADDRESS", GetHostIpAddress}
+                {"EPOC", GetEpoc}
             };
+        }
+
+        private static string GetEpoc()
+        {
+            long secondsSinceEpoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            Console.WriteLine(secondsSinceEpoch);
+            return secondsSinceEpoch.ToString();
         }
 
         private static string GetHostIpAddress()

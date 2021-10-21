@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -9,7 +10,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -20,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Description("Send deliver message to the configured business application endpoint")]
     public class SendDeliverMessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IDeliverSenderProvider _messageProvider;
         private readonly Func<DatastoreContext> _createDbContext;
@@ -92,12 +94,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     + "Default sending strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information");
             }
 
-            Logger.Trace($"{messagingContext.LogTag} Start sending the DeliverMessage to the consuming business application...");
+            Logger.Trace($"{Config.Encode(messagingContext.LogTag)} Start sending the DeliverMessage to the consuming business application...");
             SendResult result = 
                 await SendDeliverMessageAsync(
                     messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod, 
                     messagingContext.DeliverMessage);
-            Logger.Trace($"{messagingContext.LogTag} Done sending the DeliverMesssage to the consuming business application");
+            Logger.Trace($"{Config.Encode(messagingContext.LogTag)} Done sending the DeliverMesssage to the consuming business application");
 
             await UpdateDeliverMessageAsync(messagingContext, result);
             return StepResult.Success(messagingContext);

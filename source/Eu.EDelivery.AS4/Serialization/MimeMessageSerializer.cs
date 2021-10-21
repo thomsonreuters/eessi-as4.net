@@ -10,7 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 using MimeKit.IO;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Serialization
     {
         private readonly ISerializer _soapSerializer;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly Lazy<FormatOptions> FormatOptions =
             new Lazy<FormatOptions>(() =>
             {

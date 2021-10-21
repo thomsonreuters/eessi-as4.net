@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
         System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public FileReceiver()
         {
-            Logger = LogManager.GetCurrentClassLogger();
+            Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         }
 
         [Info("File path", required: true)]
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Receivers
         [Info("Polling interval", defaultValue: SettingKeys.PollingIntervalDefault)]
         protected override TimeSpan PollingInterval => _settings.PollingInterval;
 
-        protected override ILogger Logger { get; }
+        protected override ILog Logger { get; }
 
         private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details", ".lock" };
 
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             if (!Directory.Exists(FilePath))
             {
-                Logger.Warn($"Directory: '{FilePath}' does not exists");
+                Logger.Warn($"Directory: '{Config.Encode(FilePath)}' does not exists");
             }
         }
 
@@ -139,7 +140,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             _isReceiving = true;
-            Logger.Debug($"Start receiving on \"{Path.GetFullPath(FilePath)}\" ...");
+            Logger.Debug($"Start receiving on \"{Config.Encode(Path.GetFullPath(FilePath))}\" ...");
             StartPolling(messageCallback, cancellationToken);
         }
 
@@ -149,7 +150,7 @@ namespace Eu.EDelivery.AS4.Receivers
         public void StopReceiving()
         {
             _isReceiving = false;
-            Logger.Debug($"Stop receiving on \"{Path.GetFullPath(FilePath)}\"");
+            Logger.Debug($"Stop receiving on \"{Config.Encode(Path.GetFullPath(FilePath))}\"");
         }
 
         /// <summary>
@@ -191,7 +192,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             var pendingFile = new FileInfo(result.filename);
 
                             Logger.Trace(
-                                $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+                                $"Locked file {Config.Encode(file.Name)} to be processed and renamed it to {Config.Encode(pendingFile.Name)}");
 
                             _pendingFiles.Add((pendingFile, contentType));
 
@@ -200,8 +201,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (IOException ex)
                     {
-                        Logger.Info($"FileReceiver on \"{file.FullName}\" skipped since it is in use.");
-                        Logger.Trace(ex.Message);
+                        Logger.Info($"FileReceiver on \"{Config.Encode(file.FullName)}\" skipped since it is in use.");
+                        Logger.Trace(Config.Encode(ex.Message));
                     }
                 }
             }
@@ -256,7 +257,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="token"></param>
         protected override async void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
         {
-            Logger.Info($"Received message from Filesystem: \"{entity.Name}\"");
+            Logger.Info($"Received message from Filesystem: \"{Config.Encode(entity.Name)}\"");
             if (!entity.Exists)
             {
                 return;
@@ -305,8 +306,8 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while processing \"{_.fileInfo.Name}\"");
-                Logger.Trace(ex.Message);
+                Logger.Error($"An error occured while processing \"{Config.Encode(_.fileInfo.Name)}\"");
+                Logger.Trace(Config.Encode(ex.Message));
             }
         }
 
@@ -331,7 +332,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private async Task CreateExceptionFile(FileSystemInfo fileInfo, Exception exception)
         {
             string fileName = fileInfo.FullName + ".details";
-            Logger.Info($"Exception Details are stored at: \"{fileName}\"");
+            Logger.Info($"Exception Details are stored at: \"{Config.Encode(fileName)}\"");
 
             using (var streamWriter = new StreamWriter(fileName))
             {
@@ -367,7 +368,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="exception"></param>
         protected override void HandleMessageException(FileInfo fileInfo, Exception exception)
         {
-            Logger.Error(exception.Message);
+            Logger.Error(Config.Encode(exception.Message));
             MoveFile(fileInfo, "exception");
         }
 
@@ -379,8 +380,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private (bool success, string filename) MoveFile(FileInfo fileInfo, string extension)
         {
             extension = extension.TrimStart('.');
-
-            Logger.Trace($"Renaming file '{fileInfo.Name}'...");
+            Logger.Trace($"Renaming file '{Config.Encode(fileInfo.Name)}'...");
             string destFileName =
                 $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
 
@@ -410,15 +410,15 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                 } while (attempts < 5);
 
-                Logger.Trace($"File renamed to: '{fileInfo.Name}'");
+                Logger.Trace($"File renamed to: '{Config.Encode(fileInfo.Name)}'");
 
                 return (success: true, filename: destFileName);
             }
             catch (Exception ex)
             {
-                Logger.Error($"Unable to MoveFile \"{fileInfo.FullName}\" to \"{destFileName}\"");
-                Logger.Error(ex.Message);
-                Logger.Trace(ex.StackTrace);
+                Logger.Error($"Unable to MoveFile \"{Config.Encode(fileInfo.FullName)}\" to \"{Config.Encode(destFileName)}\"");
+                Logger.Error(Config.Encode(ex.Message));
+                Logger.Trace(Config.Encode(ex.StackTrace));
                 return (success: false, filename: string.Empty);
             }
         }

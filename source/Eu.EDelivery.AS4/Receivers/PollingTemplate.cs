@@ -4,8 +4,9 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <typeparam name="TOut">Out coming Message Type when the Message is Received</typeparam>
     public abstract class PollingTemplate<TIn, TOut>
     {
-        protected abstract ILogger Logger { get; }
+        protected abstract ILog Logger { get; }
         protected abstract TimeSpan PollingInterval { get; }
 
         /// <summary>
@@ -128,14 +129,14 @@ namespace Eu.EDelivery.AS4.Receivers
                         .ContinueWith(LogInnerExceptions, TaskContinuationOptions.OnlyOnFaulted));
         }
 
-        private static void LogInnerExceptions(Task task)
+        private void LogInnerExceptions(Task task)
         {
             if (task.Exception?.InnerExceptions != null)
             {
                 foreach (Exception ex in task.Exception?.InnerExceptions)
                 {
-                    LogManager.GetCurrentClassLogger().Fatal(ex.Message);
-                    LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
+                    Logger.Fatal(ex.Message);
+                    Logger.Fatal(ex.StackTrace);
                 }
             }
         }

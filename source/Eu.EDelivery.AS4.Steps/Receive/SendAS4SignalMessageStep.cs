@@ -5,12 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("Send AS4 signal message back to the original sender")]
     public class SendAS4SignalMessageStep : IStep
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
@@ -155,7 +156,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         : String.Empty;
 
                 Logger.Info(
-                    $"({context.Mode}) <- response with {primaryMessageUnit.GetType().Name} {primaryMessageUnit.MessageId} {errorDescriptions}");
+                    $"({Config.Encode(context.Mode)}) <- response with {Config.Encode(primaryMessageUnit.GetType().Name)} {Config.Encode(primaryMessageUnit.MessageId)} {Config.Encode(errorDescriptions)}");
             }
 
             return StepResult.Success(context);

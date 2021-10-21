@@ -5,7 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Steps
 {
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps
     {
         private readonly ICollection<JournalLogEntry> _journal;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private StepResult(bool succeeded, bool canProceed, MessagingContext context)
         {

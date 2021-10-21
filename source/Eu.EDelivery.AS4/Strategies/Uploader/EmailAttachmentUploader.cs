@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using NLog;
+using log4net;
 using Attachment = Eu.EDelivery.AS4.Model.Core.Attachment;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private readonly IConfig _config;
         private Method _method;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initialize a new instance of the <see cref="EmailAttachmentUploader"/> class
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private void LogUploadInformation(Attachment attachment)
         {
             string toEmailAddress = _method["to"]?.Value;
-            Logger.Info($"Attachment {attachment.Id} is send as Mail Attachment to {toEmailAddress}");
+            Logger.Info($"Attachment {Config.Encode(attachment.Id)} is send as Mail Attachment to {Config.Encode(toEmailAddress)}");
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using FluentValidation.Results;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Validators
 {
@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Validators
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="logger">The logger.</param>
-        public static void LogErrors(this ValidationResult result, ILogger logger)
+        public static void LogErrors(this ValidationResult result, ILog logger)
         {
             foreach (string errorMessage in GetValidationErrors(result))
             {

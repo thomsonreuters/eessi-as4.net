@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Http;
@@ -14,7 +15,7 @@ using Eu.EDelivery.AS4.Receivers.Http.Get;
 using Eu.EDelivery.AS4.Receivers.Http.Post;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
         System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private HttpListener _listener;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         [Info("Url", required: true)]
         [Description("The URL to receive messages on. The url can also contain a port ex: http://localhost:5000/msh/")]
@@ -74,7 +75,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             else
             {
-                Logger.Warn($"Invalid \"{SettingKeys.ConcurrentRequests}\" was given: {concurrentRequestValue}, will fall back to \"{defaultConcurrentRequests}\"");
+                Logger.Warn($"Invalid \"{Config.Encode(SettingKeys.ConcurrentRequests)}\" was given: {Config.Encode(concurrentRequestValue)}, will fall back to \"{Config.Encode(defaultConcurrentRequests)}\"");
                 ConcurrentRequests = defaultConcurrentRequests;
             }
 
@@ -127,12 +128,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 listener.Start();
 
                 Logger.Debug(
-                    $"Start receiving on \"{Url}\" with "
-                    + $"{{MaxConcurrentRequests={ConcurrentRequests}, Logging={(UseLogging ? "enabled" : "disabled")}}}");
+                    $"Start receiving on \"{Config.Encode(Url)}\" with "
+                    + $"{{MaxConcurrentRequests={Config.Encode(ConcurrentRequests)}, Logging={(UseLogging ? "enabled" : "disabled")}}}");
             }
             catch (HttpListenerException exception)
             {
-                Logger.Error($"Http Listener Exception: {exception.Message}");
+                Logger.Error($"Http Listener Exception: {Config.Encode(exception.Message)}");
             }
         }
 
@@ -157,7 +158,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 cancellation,
                 processRequestAsync: async context =>
                 {
-                    Logger.Info($"Received {context.Request.HttpMethod} request at \"{context.Request.Url}\"");
+                    Logger.Info($"Received {Config.Encode(context.Request.HttpMethod)} request at \"{Config.Encode(context.Request.Url)}\"");
                     await router.RouteWithAsync(
                         httpContext: context,
                         prePostSelector: req => RunRequestThroughAgentAsync(req, messageCallback));
@@ -203,7 +204,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (HttpListenerException)
                     {
-                        Logger.Trace($"Http Listener on {Url} stopped receiving requests.");
+                        Logger.Trace($"Http Listener on {Config.Encode(Url)} stopped receiving requests.");
                     }
                     catch (ObjectDisposedException)
                     {
@@ -295,7 +296,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 string newReceivedMessageFile =
                     FilenameUtils.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
-                Logger.Info($"Logging to \"{newReceivedMessageFile}\"");
+                Logger.Info($"Logging to \"{Config.Encode(newReceivedMessageFile)}\"");
 
                 using (FileStream destinationStream =
                     FileUtils.CreateAsync(
@@ -311,7 +312,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.Message);
+                Logger.Error(Config.Encode(ex.Message));
                 throw;
             }
         }
@@ -321,7 +322,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            Logger.Debug($"Stop listening on \"{Url}\"");
+            Logger.Debug($"Stop listening on \"{Config.Encode(Url)}\"");
 
             _listener?.Close();
         }
@@ -342,7 +343,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception exception)
             {
-                Logger.Debug(exception.Message);
+                Logger.Debug(Config.Encode(exception.Message));
             }
         }
     }

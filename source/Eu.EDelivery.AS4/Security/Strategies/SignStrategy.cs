@@ -74,6 +74,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void SetSoapHeaderReferences(SigningId signingId, string hashFunction)
         {
             AddXmlReference(signingId.HeaderSecurityId, hashFunction);
+            AddXmlReference(signingId.SamlSecurityId, hashFunction);
             AddXmlReference(signingId.BodySecurityId, hashFunction);
         }
 

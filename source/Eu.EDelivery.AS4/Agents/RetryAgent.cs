@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -9,7 +10,7 @@ using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using NotSupportedException = System.NotSupportedException;
 using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly IReceiver _receiver;
         private readonly Func<DatastoreContext> _createContext;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryAgent"/> class.
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.Agents
                     t == RetryType.Send ? Operation.ToBeSent : 
                     t == RetryType.PiggyBack ? Operation.ToBePiggyBacked : throw new InvalidOperationException($"Unknown RetryType: {t}");
 
-                Logger.Debug($"({rr.RetryType}) Update {entityType} to retry again"
+                Logger.Debug($"({Config.Encode(rr.RetryType)}) Update {Config.Encode(entityType)} to retry again"
                     + $"{Environment.NewLine} -> Set messages's Operation={updateOperation}"
                     + $"{Environment.NewLine} -> Update retry info {{CurrentRetry={rr.CurrentRetryCount + 1}, Status=Pending, LastRetryTime=Now}}");
 
@@ -125,7 +126,7 @@ namespace Eu.EDelivery.AS4.Agents
             else if (rr.CurrentRetryCount >= rr.MaxRetryCount)
             {
                 Logger.Debug(
-                    $"({rr.RetryType}) Retry operation is completed, no new retries will happen"
+                    $"({Config.Encode(rr.RetryType)}) Retry operation is completed, no new retries will happen"
                     + $"{Environment.NewLine} -> Update {entityType}'s Operation=DeadLettered"
                     + $"{Environment.NewLine} -> Update retry cycle {{Status=Completed}}");
 
@@ -228,6 +229,11 @@ namespace Eu.EDelivery.AS4.Agents
             Logger.Trace($"Stopping {AgentConfig.Name} ...");
             _receiver.StopReceiving();
             Logger.Trace($"Stopping {AgentConfig.Name} ...");
+        }
+
+        public Task<MessagingContext> Process(MessagingContext message, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
         }
     }
 }

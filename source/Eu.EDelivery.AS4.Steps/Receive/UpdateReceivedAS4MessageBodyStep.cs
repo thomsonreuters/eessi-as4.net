@@ -1,12 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using Microsoft.EntityFrameworkCore;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -14,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("Updates the AS4 Message that has been received after processing so that it can be delivered or forwarded")]
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IConfig _configuration;
         private readonly Func<DatastoreContext> _createDatastoreContext;
@@ -86,6 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     _messageBodyStore);
 
                 await datastoreContext.SaveChangesAsync().ConfigureAwait(false);
+                messagingContext.InMessage = datastoreContext.InMessages.AsNoTracking().FirstOrDefault(p => p.EbmsMessageId == messagingContext.EbmsMessageId);
             }
 
             if (messagingContext.ReceivedMessageMustBeForwarded)

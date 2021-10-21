@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -15,7 +16,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
-        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteDbCommand" /> class.

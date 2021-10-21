@@ -3,12 +3,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
     public class Program
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public static void Main()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
@@ -68,7 +69,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().Fatal(ex);
+                Logger.Fatal(ex);
             }
             finally
             {
@@ -115,7 +116,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             private readonly CancellationTokenSource _cancellation;
 
             private readonly Kernel _kernel;
-            private Task _kernelTask, _frontendTask, _payloadServiceTask;
+            private Task _kernelTask;
 
 
             /// <summary>
@@ -135,8 +136,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             public void Start()
             {
                 _kernelTask = StartKernel();
-                _frontendTask = StartFeInProcess(_cancellation.Token);
-                _payloadServiceTask = StartPayloadServiceInProcess(_cancellation.Token);
             }
 
             private Task StartKernel()
@@ -147,36 +146,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     x =>
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
+                        Logger.Fatal(x.Exception?.ToString());
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
-
-                return task;
-            }
-
-            private static Task StartFeInProcess(CancellationToken cancellationToken)
-            {
-                if (!Config.Instance.FeInProcess)
-                {
-                    return Task.CompletedTask;
-                }
-
-                Task task = Task.Factory
-                    .StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken);
-                task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
-
-                return task;
-            }
-
-            private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
-            {
-                if (!Config.Instance.PayloadServiceInProcess)
-                {
-                    return Task.CompletedTask;
-                }
-
-                Task task = Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
-                task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
 
                 return task;
             }
@@ -190,7 +162,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 foreach (Exception ex in task.Exception?.InnerExceptions)
                 {
-                    NLog.LogManager.GetCurrentClassLogger().Error(ex);
+                    Logger.Error(ex);
                 }
             }
 
@@ -203,8 +175,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 _cancellation.Cancel();
 
                 StopTask(_kernelTask);
-                StopTask(_frontendTask);
-                StopTask(_payloadServiceTask);
 
                 return _kernelTask;
             }

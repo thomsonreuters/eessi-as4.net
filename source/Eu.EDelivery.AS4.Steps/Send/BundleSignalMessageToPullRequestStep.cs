@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _bodyStore;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequestStep"/> class.
@@ -90,8 +90,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 foreach (SignalMessage signal in signals)
                 {
                     Logger.Info(
-                        $"PiggyBack the {signal.GetType().Name} \"{signal.MessageId}\" which reference "
-                        + $"UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
+                        $"PiggyBack the {Config.Encode(signal.GetType().Name)} \"{Config.Encode(signal.MessageId)}\" which reference "
+                        + $"UserMessage \"{Config.Encode(signal.RefToMessageId)}\" to the PullRequest");
 
                     messagingContext.AS4Message.AddMessageUnit(signal);
                 }

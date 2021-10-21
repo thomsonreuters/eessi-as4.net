@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Newtonsoft.Json;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
 {
@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     {
         public const string Key = "PAYLOAD-SERVICE";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private static readonly HttpClient HttpClient = new HttpClient();
         private readonly Func<string, HttpContent, Task<HttpResponseMessage>> _postRequest;
         [Info("location")]

@@ -5,13 +5,14 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
 using InvalidOperationException = System.InvalidOperationException;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -23,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     [Description("This step encrypts the AS4 Message and its attachments if encryption is enabled in the Sending PMode")]
     public class EncryptAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly ICertificateRepository _certificateRepository;
 
         /// <summary>
@@ -74,14 +75,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 Logger.Trace(
                     "No encryption of the AS4Message will happen because the " +
-                    $"SendingPMode {messagingContext.SendingPMode?.Id} Security.Encryption.IsEnabled is disabled");
+                    $"SendingPMode {Config.Encode(messagingContext.SendingPMode?.Id)} Security.Encryption.IsEnabled is disabled");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
             Logger.Info(
-                $"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Encrypt AS4Message with given encryption information " +
-                $"configured in the SendingPMode: {messagingContext.SendingPMode.Id}");
+                $"(Outbound)[{Config.Encode(messagingContext.AS4Message.GetPrimaryMessageId())}] Encrypt AS4Message with given encryption information " +
+                $"configured in the SendingPMode: {Config.Encode(messagingContext.SendingPMode.Id)}");
 
             KeyEncryptionConfiguration keyEncryptionConfig = RetrieveKeyEncryptionConfig(messagingContext.SendingPMode);
             Encryption encryptionSettings = messagingContext.SendingPMode.Security.Encryption;
@@ -118,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 string description = $"Problems with encryption AS4Message: {exception}";
-                Logger.Error(description);
+                Logger.Error(Config.Encode(description));
 
                 throw new CryptographicException(description, exception);
             }

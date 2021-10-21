@@ -2,8 +2,9 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     {
         private readonly IAS4ResponseHandler _nextHandler;
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyBodyResponseHandler"/> class.
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                     return StepResult.Success(response.OriginalRequest).AndStopExecution();
                 }
 
-                Logger.Error($"Response with HTTP status: {response.StatusCode}");
+                Logger.Error($"Response with HTTP status: {Config.Encode(response.StatusCode)}");
 
                 if (Logger.IsErrorEnabled)
                 {
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                         string content = await r.ReadToEndAsync();
                         if (!string.IsNullOrEmpty(content))
                         {
-                            Logger.Error("Response with HTTP content: " + content);
+                            Logger.Error("Response with HTTP content: " + Config.Encode(content));
                         }
                     }
                 }

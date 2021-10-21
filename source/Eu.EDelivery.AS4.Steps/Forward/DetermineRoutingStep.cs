@@ -3,9 +3,10 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
     public class DetermineRoutingStep : IStep
     {
         private readonly IConfig _configuration;
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DetermineRoutingStep"/> class.
@@ -67,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             string sendingPModeId = messagingContext.ReceivingPMode.MessageHandling.ForwardInformation.SendingPMode;
-            Logger.Trace($"SendingPMode {sendingPModeId} must be used to forward Message with Id {messagingContext.EbmsMessageId}");
+            Logger.Trace($"SendingPMode {Config.Encode(sendingPModeId)} must be used to forward Message with Id {Config.Encode(messagingContext.EbmsMessageId)}");
 
             if (String.IsNullOrWhiteSpace(sendingPModeId))
             {

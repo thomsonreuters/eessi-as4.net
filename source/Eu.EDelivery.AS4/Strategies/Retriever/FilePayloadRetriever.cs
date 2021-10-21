@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private readonly IConfig _config;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class.
@@ -49,12 +49,6 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
             string relativeRetrievalPath = _config.PayloadRetrievalLocation.Replace(Key, string.Empty);
             string absoluteRetrievalPath = Path.GetFullPath(relativeRetrievalPath);
-
-            if (!StringComparer.OrdinalIgnoreCase.Equals(payload.Directory?.FullName, absoluteRetrievalPath))
-            {
-                throw new NotSupportedException(
-                    $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {absoluteRetrievalPath}");
-            }
 
             var uri = new Uri(absolutePayloadPath);
             Stream payloadStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);

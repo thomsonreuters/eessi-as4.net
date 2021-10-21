@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
+using log4net;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
         /// </summary>
@@ -72,13 +75,12 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             }
             catch (Exception ex)
             {
-                var l = NLog.LogManager.GetCurrentClassLogger();
-                l.Error(ex.Message);
-                l.Trace(ex.StackTrace);
+                Logger.Error(ex.Message);
+                Logger.Debug(ex.StackTrace);
 
                 if (ex.InnerException != null)
                 {
-                    l.Error(ex.InnerException.Message);
+                    Logger.Error(ex.InnerException.Message);
                 }
 
                 throw;

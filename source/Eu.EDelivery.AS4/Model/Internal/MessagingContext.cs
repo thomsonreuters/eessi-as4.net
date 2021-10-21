@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.Model.Internal
@@ -18,7 +18,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class MessagingContext : IDisposable
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
+
+        public OutMessage OutMessage { get; set; }
+
+        public InMessage InMessage { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
@@ -241,7 +245,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public SubmitMessage SubmitMessage { get; private set; }
 
-        public DeliverMessageEnvelope DeliverMessage { get; private set; }
+        public DeliverMessageEnvelope DeliverMessage { get; set; }
 
         public NotifyMessageEnvelope NotifyMessage { get; private set; }
 

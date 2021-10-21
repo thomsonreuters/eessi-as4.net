@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Model.Internal;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Agents
@@ -67,6 +68,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public void Dispose()
         {
             IsDisposed = true;
+        }
+
+        public Task<MessagingContext> Process(MessagingContext message, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
         }
     }
 

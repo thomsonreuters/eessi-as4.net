@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Extensions
 {
@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Extensions
     /// </summary>
     public static class XmlAttributeExtensions
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Convert the given <paramref name="xmlAttribute"/> to a valid <see cref="TimeSpan"/> instance.

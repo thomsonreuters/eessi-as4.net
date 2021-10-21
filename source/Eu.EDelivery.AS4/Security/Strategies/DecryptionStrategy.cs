@@ -12,7 +12,7 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
-using NLog;
+using log4net;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Security;
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly IEnumerable<Attachment> _attachments;
         private readonly X509Certificate2 _certificate;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DecryptionStrategy"/> class.

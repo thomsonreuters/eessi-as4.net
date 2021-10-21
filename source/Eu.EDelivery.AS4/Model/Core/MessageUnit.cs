@@ -16,12 +16,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Gets the reference to an ebMS message identifier of another message unit.
         /// </summary>
-        public string RefToMessageId { get; }
+        public string RefToMessageId { get; set; }
 
         /// <summary>
         /// Gets the timestamp this message unit was created.
         /// </summary>
-        public DateTimeOffset Timestamp { get; }
+        public DateTimeOffset Timestamp { get; set; }
 
         protected MessageUnit() : this(IdentifierFactory.Instance.Create()) { }
 

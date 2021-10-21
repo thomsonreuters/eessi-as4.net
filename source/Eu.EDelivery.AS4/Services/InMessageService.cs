@@ -17,7 +17,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using log4net;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Services
     /// </summary>
     internal class InMessageService
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly IDatastoreRepository _repository;
         private readonly IConfig _configuration;
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Services
                 .OnLocation(location)
                 .BuildAsDeadLetteredError();
 
-            Logger.Debug($"Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
+            Logger.Debug($"Create Error for missed Receipt with {{Operation={Config.Encode(inMessage.Operation)}}}");
             _repository.InsertInMessage(inMessage);
         }
 
@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.Services
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.Message);
+                Logger.Error(Config.Encode(ex.Message));
 
                 var service = new ExceptionService(_configuration, _repository, messageBodyStore);
                 await service.InsertIncomingExceptionAsync(ex, new MemoryStream(Encoding.UTF8.GetBytes(location)));
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (userMessage.IsTest)
                 {
-                    Logger.Trace($"Incoming UserMessage {userMessage.MessageId} is a 'Test Message'");
+                    Logger.Trace($"Incoming UserMessage {Config.Encode(userMessage.MessageId)} is a 'Test Message'");
                 }
 
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
@@ -197,19 +197,19 @@ namespace Eu.EDelivery.AS4.Services
                         .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage UserMessage {userMessage.MessageId} with {{"
-                        + $"Operation={inMessage.Operation}, "
-                        + $"Status={inMessage.Status}, "
+                        $"Insert InMessage UserMessage {Config.Encode(userMessage.MessageId)} with {{"
+                        + $"Operation={Config.Encode(inMessage.Operation)}, "
+                        + $"Status={Config.Encode(inMessage.Status)}, "
                         + $"PModeId={pmode?.Id ?? "null"}, "
-                        + $"IsTest={userMessage.IsTest}, "
-                        + $"IsDuplicate={userMessage.IsDuplicate}}}");
+                        + $"IsTest={Config.Encode(userMessage.IsTest)}, "
+                        + $"IsDuplicate={Config.Encode(userMessage.IsDuplicate)}}}");
 
                     _repository.InsertInMessage(inMessage);
                 }
                 catch (Exception ex)
                 {
-                    string description = $"Unable to insert UserMessage {userMessage.MessageId}";
-                    Logger.Error(description);
+                    string description = $"Unable to insert UserMessage {Config.Encode(userMessage.MessageId)}";
+                    Logger.Error(Config.Encode(description));
 
                     throw new DataException(description, ex);
                 }
@@ -255,17 +255,17 @@ namespace Eu.EDelivery.AS4.Services
                         .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} with {{"
-                        + $"Operation={inMessage.Operation}, "
-                        + $"Status={inMessage.Status}, "
-                        + $"PModeId={pmode?.Id}}}");
+                        $"Insert InMessage {Config.Encode(signalMessage.GetType().Name)} {Config.Encode(signalMessage.MessageId)} with {{"
+                        + $"Operation={Config.Encode(inMessage.Operation)}, "
+                        + $"Status={Config.Encode(inMessage.Status)}, "
+                        + $"PModeId={Config.Encode(pmode?.Id)}}}");
 
                     _repository.InsertInMessage(inMessage);
                 }
                 catch (Exception exception)
                 {
-                    string description = $"Unable to insert SignalMessage {signalMessage.MessageId}";
-                    Logger.Error(description);
+                    string description = $"Unable to insert SignalMessage {Config.Encode(signalMessage.MessageId)}";
+                    Logger.Error(Config.Encode(description));
 
                     throw new DataException(description, exception);
                 }
@@ -327,7 +327,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (receivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward)
             {
-                Logger.Debug($"Received AS4Message must be forwarded since the ReceivingPMode {receivingPMode?.Id} MessageHandling has a <Forward/> element");
+                Logger.Debug($"Received AS4Message must be forwarded since the ReceivingPMode {Config.Encode(receivingPMode?.Id)} MessageHandling has a <Forward/> element");
 
                 string pmodeString = AS4XmlSerializer.ToString(receivingPMode);
                 string pmodeId = receivingPMode.Id;
@@ -343,7 +343,7 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         m.Intermediary = true;
                         m.SetPModeInformation(pmodeId, pmodeString);
-                        Logger.Debug($"Update InMessage {m.EbmsMessageType} with {{Intermediary={m.Intermediary}, PMode={pmodeId}}}");
+                        Logger.Debug($"Update InMessage {Config.Encode(m.EbmsMessageType)} with {{Intermediary={Config.Encode(m.Intermediary)}, PMode={Config.Encode(pmodeId)}}}");
                     });
 
                 _repository.UpdateInMessage(
@@ -351,7 +351,7 @@ namespace Eu.EDelivery.AS4.Services
                     m =>
                     {
                         m.Operation = Operation.ToBeForwarded;
-                        Logger.Debug($"Update InMessage {m.EbmsMessageType} with Operation={m.Operation}");
+                        Logger.Debug($"Update InMessage {Config.Encode(m.EbmsMessageType)} with Operation={Config.Encode(m.Operation)}");
                     });
             }
             else if (receivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Deliver)
@@ -405,8 +405,8 @@ namespace Eu.EDelivery.AS4.Services
                                     type: RetryType.Delivery);
 
                                 Logger.Debug(
-                                    $"Insert RetryReliability for UserMessage InMessage {r.RefToInMessageId} with {{"
-                                    + $"MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
+                                    $"Insert RetryReliability for UserMessage InMessage {Config.Encode(r.RefToInMessageId)} with {{"
+                                    + $"MaxRetryCount={Config.Encode(r.MaxRetryCount)}, RetryInterval={Config.Encode(r.RetryInterval)}}}");
 
                                 _repository.InsertRetryReliability(r);
                             }
@@ -414,10 +414,10 @@ namespace Eu.EDelivery.AS4.Services
                             {
                                 Logger.Trace(
                                     "Will not insert RetryReliability for UserMessage(s) so it can be retried during delivery "
-                                    + $"since the ReceivingPMode {receivingPMode?.Id} MessageHandling.Deliver.Reliability.IsEnabled = false");
+                                    + $"since the ReceivingPMode {Config.Encode(receivingPMode?.Id)} MessageHandling.Deliver.Reliability.IsEnabled = false");
                             }
 
-                            Logger.Debug($"Update InMessage UserMessage {userMessage.MessageId} with Operation={message.Operation}");
+                            Logger.Debug($"Update InMessage UserMessage {Config.Encode(userMessage.MessageId)} with Operation={Config.Encode(message.Operation)}");
                         }
                     });
             }
@@ -437,7 +437,7 @@ namespace Eu.EDelivery.AS4.Services
             bool notifyReceipts = sendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
             if (!notifyReceipts)
             {
-                Logger.Debug($"No Receipts will be notified since the SendingPMode {sendingPMode?.Id} ReceiptHandling.NotifyMessageProducer = false");
+                Logger.Debug($"No Receipts will be notified since the SendingPMode {Config.Encode(sendingPMode?.Id)} ReceiptHandling.NotifyMessageProducer = false");
             }
 
             RetryReliability retryReceipts = sendingPMode?.ReceiptHandling?.Reliability;
@@ -445,7 +445,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Trace(
                     "Will not insert RetryReliability for Receipt(s) so it can be retried during delivery "
-                    + $"since the ReceivingPMode {sendingPMode?.Id} ReceiptHandling.Reliability.IsEnabled = false");
+                    + $"since the ReceivingPMode {Config.Encode(sendingPMode?.Id)} ReceiptHandling.Reliability.IsEnabled = false");
             }
 
             if (notifyReceipts)
@@ -459,7 +459,7 @@ namespace Eu.EDelivery.AS4.Services
             bool notifyErrors = sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
             if (!notifyErrors)
             {
-                Logger.Debug($"No Errors will be notified since the SendingPMode {sendingPMode?.Id} Errorhandling.NotifyMessageProducer = false");
+                Logger.Debug($"No Errors will be notified since the SendingPMode {Config.Encode(sendingPMode?.Id)} Errorhandling.NotifyMessageProducer = false");
             }
 
             RetryReliability retryErrors = sendingPMode?.ErrorHandling?.Reliability;
@@ -467,7 +467,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Trace(
                     "Will not insert RetryReliability for Error(s) so it can be retried during notification "
-                    + $"since the SendingPMode {sendingPMode?.Id} ErrorHandling.Reliability.IsEnabled = false");
+                    + $"since the SendingPMode {Config.Encode(sendingPMode?.Id)} ErrorHandling.Reliability.IsEnabled = false");
             }
 
             if (notifyErrors)
@@ -501,7 +501,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     m.Operation = Operation.ToBeNotified;
                     m.SetPModeInformation(sendingPMode);
-                    Logger.Debug($"Update InMessage {ebmsMessageType} {m.EbmsMessageId} with Operation={m.Operation} according to SendingPMode {sendingPMode.Id}");
+                    Logger.Debug($"Update InMessage {Config.Encode(ebmsMessageType)} {Config.Encode(m.EbmsMessageId)} with Operation={Config.Encode(m.Operation)} according to SendingPMode {Config.Encode(sendingPMode.Id)}");
                 });
 
             bool isRetryEnabled = reliability?.IsEnabled ?? false;
@@ -517,9 +517,9 @@ namespace Eu.EDelivery.AS4.Services
                         type: RetryType.Notification);
 
                     Logger.Debug(
-                        $"Insert RetryReliability for SignalMessage InMessage {id} with {{"
-                        + $"MaxRetryCount={r.MaxRetryCount}, "
-                        + $"RetryInterval={r.RetryInterval}}}");
+                        $"Insert RetryReliability for SignalMessage InMessage {Config.Encode(id)} with {{"
+                        + $"MaxRetryCount={Config.Encode(r.MaxRetryCount)}, "
+                        + $"RetryInterval={Config.Encode(r.RetryInterval)}}}");
 
                     _repository.InsertRetryReliability(r);
                 }
@@ -536,7 +536,7 @@ namespace Eu.EDelivery.AS4.Services
                     m =>
                     {
                         m.SetStatus(outStatus);
-                        Logger.Debug($"Update OutMessage UserMessage {m.EbmsMessageId} with Status={outStatus}");
+                        Logger.Debug($"Update OutMessage UserMessage {Config.Encode(m.EbmsMessageId)} with Status={Config.Encode(outStatus)}");
                     });
             }
         }
@@ -551,7 +551,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isDuplicate)
             {
-                Logger.Debug($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
+                Logger.Debug($"[{Config.Encode(userMessage.MessageId)}] Incoming User Message is a duplicated one");
             }
 
             return isDuplicate;
@@ -574,7 +574,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isDuplicate)
             {
-                Logger.Debug($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
+                Logger.Debug($"[{Config.Encode(signalMessage.RefToMessageId)}] Incoming Signal Message is a duplicated one");
             }
 
             return isDuplicate;
@@ -587,7 +587,7 @@ namespace Eu.EDelivery.AS4.Services
             if (pmode?.MessageHandling?.DeliverInformation == null)
             {
                 Logger.Debug(
-                    $"UserMessage will not be delivered since the ReceivingPMode {pmode?.Id} has not a MessageHandling.Deliver element");
+                    $"UserMessage will not be delivered since the ReceivingPMode {Config.Encode(pmode?.Id)} has not a MessageHandling.Deliver element");
 
                 return false;
             }
@@ -599,7 +599,7 @@ namespace Eu.EDelivery.AS4.Services
 
             Logger.Debug(
                 $"UserMessage {(needsToBeDelivered ? "will" : "will not")} be delivered because the " +
-                $"ReceivingPMode {pmode.Id} MessageHandling.Deliver.IsEnabled={pmode.MessageHandling.DeliverInformation.IsEnabled} and " +
+                $"ReceivingPMode {Config.Encode(pmode.Id)} MessageHandling.Deliver.IsEnabled={Config.Encode(pmode.MessageHandling.DeliverInformation.IsEnabled)} and " +
                 $"the UserMessage {(userMessage.IsTest ? "is" : "isn't")} a test message and {(userMessage.IsDuplicate ? "is" : "isn't")} a duplicate one");
 
             return needsToBeDelivered;

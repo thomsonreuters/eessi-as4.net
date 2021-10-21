@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Xml;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using SignalMessage = Eu.EDelivery.AS4.Xml.SignalMessage;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {

@@ -7,11 +7,14 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services.Journal;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps
 {
     internal class StepExecutioner
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType); 
+
         private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
         private readonly StepConfiguration _stepConfiguration;
         private readonly IAgentExceptionHandler _exceptionHandler;
@@ -74,6 +77,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns>The result of the last-executed step from the normal or error pipeline if there hasn't been an exception occured.</returns>
         public async Task<StepResult> ExecuteStepsAsync(MessagingContext currentContext)
         {
+            Logger.Info($"StepExecutioner->ExecuteStepsAsync : Call Started");
             bool hasNoStepsConfigured = 
                 _conditionalPipeline.happyPath == null
                 && (_stepConfiguration.NormalPipeline.Any(s => s == null) 
@@ -114,6 +118,7 @@ namespace Eu.EDelivery.AS4.Steps
                     result = await ExecuteStepsAsync(steps, result);
                 }
 
+                Logger.Info($"StepExecutioner->ExecuteStepsAsync : Call End");
                 return result;
             }
             catch (Exception exception)
@@ -144,6 +149,7 @@ namespace Eu.EDelivery.AS4.Steps
             IEnumerable<IStep> steps,
             StepResult initialResult)
         {
+            Logger.Info($"StepExecutioner->ExecuteStepsAsync->ExecuteStepsAsync : Call Started");
             StepResult lastResult = initialResult;
             MessagingContext currentContext = lastResult.MessagingContext;
 
@@ -194,6 +200,7 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static async Task<StepResult> ExecuteStepAsync(MessagingContext currentContext, IStep step)
         {
+            Logger.Info($"ExecuteStepsAsync-> : Step Execution Started");
             Task<StepResult> executeAsync = step.ExecuteAsync(currentContext);
             if (executeAsync == null)
             {

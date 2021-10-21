@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Xml;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     internal class ReliableSender : IDeliverSender, INotifySender
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         internal IDeliverSender InnerDeliverSender { get; }
         internal INotifySender InnerNotifySender { get; }

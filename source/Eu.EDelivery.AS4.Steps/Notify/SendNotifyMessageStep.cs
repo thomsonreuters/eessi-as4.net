@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -11,7 +12,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
@@ -22,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     [Description("Send a notification message using the method that is configured in the PMode")]
     public class SendNotifyMessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private readonly INotifySenderProvider _provider;
         private readonly Func<DatastoreContext> _createContext;
@@ -117,8 +118,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 if (pmode != null)
                 {
                     Logger.Debug(
-                        $"Using SendingPMode {pmode.Id} based on the NotifyMessage.MessageInfo.RefToMessageId "
-                        + $"{messagingContext.NotifyMessage.MessageInfo?.RefToMessageId} from the matching stored OutMessage");
+                        $"Using SendingPMode {Config.Encode(pmode.Id)} based on the NotifyMessage.MessageInfo.RefToMessageId "
+                        + $"{Config.Encode(messagingContext.NotifyMessage.MessageInfo?.RefToMessageId)} from the matching stored OutMessage");
 
                     messagingContext.SendingPMode = pmode;
                 }
@@ -126,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             Logger.Trace("Start sending NotifyMessage...");
             SendResult result = await SendNotifyMessageAsync(notifyMethod, messagingContext.NotifyMessage).ConfigureAwait(false);
-            Logger.Trace($"NotifyMessage sent result in: {result}");
+            Logger.Trace($"NotifyMessage sent result in: {Config.Encode(result)}");
 
             await UpdateDatastoreAsync(
                 messagingContext.NotifyMessage,
@@ -216,7 +217,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 {
                     Logger.Debug(
                         "Can't retrieve SendingPMode because no matching stored OutMessage found "
-                        + $"for EbmsMessageId = {ebmsMessageId} AND Intermediary = false");
+                        + $"for EbmsMessageId = {Config.Encode(ebmsMessageId)} AND Intermediary = false");
 
                     return null;
                 }
@@ -226,7 +227,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 {
                     Logger.Debug(
                         "Can't use SendingPMode from matching OutMessage for NotifyMessage.MessageInfo.RefToMessageId "
-                        + $"{ebmsMessageId} because the PMode field can't be deserialized correctly to a SendingPMode");
+                        + $"{Config.Encode(ebmsMessageId)} because the PMode field can't be deserialized correctly to a SendingPMode");
                 }
 
                 return pmode;

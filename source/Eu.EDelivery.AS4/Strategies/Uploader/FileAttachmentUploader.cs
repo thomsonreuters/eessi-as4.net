@@ -11,7 +11,9 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Common;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
 {
@@ -23,7 +25,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     {
         public const string Key = "FILE";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private Method _method;
 
@@ -132,7 +134,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            Exception unauthorizedEx = exs.FirstOrDefault(ex => ex is UnauthorizedAccessException);
                            if (unauthorizedEx != null)
                            {
-                               Logger.Error($"A fatal error occured while uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
+                               Logger.Error($"A fatal error occured while uploading the attachment {Config.Encode(attachment.Id)}: {Config.Encode(unauthorizedEx.Message)}");
 
                                return UploadResult.FatalFail;
                            }
@@ -155,7 +157,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            }
 
                            string desc = String.Join(", ", exs);
-                           Logger.Error($"An error occured while uploading the attachment {attachment.Id}: {desc}, will be retried");
+                           Logger.Error($"An error occured while uploading the attachment {Config.Encode(attachment.Id)}: {desc}, will be retried");
 
                            return UploadResult.RetryableFail;
                        }
@@ -185,20 +187,28 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                     ? (FileMode.Create, attachmentFilePath)
                     : (FileMode.CreateNew, FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath)); 
 
-            Logger.Trace($"Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
+            Logger.Trace($"Trying to upload attachment {Config.Encode(attachment.Id)} to {attachmentFilePath}");
+            Logger.Info($"FileAttachmentUploader -> Trying to upload attachment {Config.Encode(attachment.Id)} to {attachmentFilePath}");
 
-            using (var fileStream = new FileStream(
-                filePath, 
-                fileMode, 
-                FileAccess.Write, 
-                FileShare.None, 
-                bufferSize: 4096, 
-                options: FileOptions.Asynchronous | FileOptions.SequentialScan))
+            try
             {
-                await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
+                using (var fileStream = new FileStream(
+                               filePath,
+                               fileMode,
+                               FileAccess.Write,
+                               FileShare.None,
+                               bufferSize: 4096,
+                               options: FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Info($"FileAttachmentUploader -> CopyToFastAsync Exception : {ex.StackTrace}");
             }
 
-            Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to \"{attachmentFilePath}\"");
+            Logger.Info($"(Deliver) Attachment {Config.Encode(attachment.Id)} is uploaded successfully to \"{attachmentFilePath}\"");
             return UploadResult.SuccessWithUrl(attachmentFilePath);
         }
     }

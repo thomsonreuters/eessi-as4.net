@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.Repositories
     public class DatastoreRepository : IDatastoreRepository
     {
         private readonly DatastoreContext _datastoreContext;
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreRepository"/> class. 
@@ -199,7 +200,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 InMessage message = GetInMessageEntityFor(id);
                 if (message == null)
                 {
-                    LogManager.GetCurrentClassLogger().Warn($"Unable to update InMessage {messageId}.  There exists no such InMessage.");
+                    Logger.Warn($"Unable to update InMessage {Config.Encode(messageId)}.  There exists no such InMessage.");
                     return;
                 }
 
@@ -257,7 +258,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 msg = _datastoreContext.InMessages.FirstOrDefault(m => m.Id == id);
                 if (msg == null)
                 {
-                    LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {id}");
+                    Logger.Error($"No InMessage found for MessageId {id}");
                     return null;
                 }
             }
@@ -378,7 +379,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 msg = _datastoreContext.OutMessages.FirstOrDefault(m => m.Id == outMessageId);
                 if (msg == null)
                 {
-                    LogManager.GetCurrentClassLogger().Error($"No OutMessage found for OutMessageId {outMessageId}");
+                    Logger.Error($"No OutMessage found for OutMessageId {outMessageId}");
                     return null;
                 }
             }

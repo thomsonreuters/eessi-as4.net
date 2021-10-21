@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers.PullRequest;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private Func<PModePullRequest, Task<MessagingContext>> _messageCallback;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestReceiver" /> class.
@@ -51,25 +51,6 @@ namespace Eu.EDelivery.AS4.Receivers
             if (settings == null)
             {
                 throw new ArgumentNullException(nameof(settings));
-            }
-
-            foreach (Setting setting in settings)
-            {
-                if (!_configuration.ContainsSendingPMode(setting.Key))
-                {
-                    Logger.Warn($"Configured SendingPMode {setting.Key} could not be found");
-                    continue;
-                }
-
-                SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                TimeSpan minTimeSpan = setting["tmin"].AsTimeSpan();
-                TimeSpan maxTimeSpan = setting["tmax"].AsTimeSpan();
-
-                if (minTimeSpan != default(TimeSpan) && maxTimeSpan != default(TimeSpan))
-                {
-                    var pullRequest = new PModePullRequest(pmode, minTimeSpan, maxTimeSpan);
-                    AddIntervalRequest(pullRequest);
-                }
             }
         }
 
@@ -119,7 +100,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 bool isUserMessage = resultedMessage.AS4Message?.IsUserMessage == true;
                 Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
-                Logger.Info($"PullRequest result in {(isUserMessage ? "UserMessage" : "Error")} next interval will be \"{intervalResult}\"");
+                Logger.Info($"PullRequest result in {Config.Encode((isUserMessage ? "UserMessage" : "Error"))} next interval will be \"{Config.Encode(intervalResult)}\"");
 
                 return intervalResult;
             }

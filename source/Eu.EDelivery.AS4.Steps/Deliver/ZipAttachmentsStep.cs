@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -19,6 +19,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Description("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     public class ZipAttachmentsStep : IStep
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Start zipping <see cref="Attachment"/> Models
         /// </summary>
@@ -40,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
             }
 
-            LogManager.GetCurrentClassLogger().Info($"{messagingContext.LogTag} Zip the Attachments to a single file");
+            Logger.Info($"{messagingContext.LogTag} Zip the Attachments to a single file");
             return StepResult.Success(messagingContext);
         }
 

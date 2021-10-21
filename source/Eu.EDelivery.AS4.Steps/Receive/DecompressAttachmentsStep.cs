@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services.Journal;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("If necessary, decompresses the attachments that are present in the received message.")]
     public class DecompressAttachmentsStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         /// <summary>
         /// Decompress any Attachments

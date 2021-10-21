@@ -17,8 +17,11 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Watchers;
-using NLog;
+using log4net;
 using static Eu.EDelivery.AS4.Properties.Resources;
+using Eu.EDelivery.AS4.Extensions;
+using System.Globalization;
+using System.Web;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -30,7 +33,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
         private static readonly IConfig Singleton = new Config();
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
@@ -151,20 +154,6 @@ namespace Eu.EDelivery.AS4.Common
                 IsInitialized = true;
                 RetrieveLocalConfiguration(settingsFileName);
                 LoadExternalAssemblies();
-
-
-                _sendingPModeWatcher =
-                    new PModeWatcher<SendingProcessingMode>(
-                        Path.Combine(ApplicationPath, configurationfolder, sendpmodefolder),
-                        SendingProcessingModeValidator.Instance);
-
-                _receivingPModeWatcher =
-                    new PModeWatcher<ReceivingProcessingMode>(
-                        Path.Combine(ApplicationPath, configurationfolder, receivepmodefolder),
-                        ReceivingProcessingModeValidator.Instance);
-
-                _sendingPModeWatcher.Start();
-                _receivingPModeWatcher.Start();
             }
             catch (Exception exception)
             {
@@ -223,6 +212,17 @@ namespace Eu.EDelivery.AS4.Common
             }
 
             return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).Filename);
+        }
+
+        /// <summary>
+        /// Encode the string
+        /// </summary>
+        /// <param name="value"> value</param>
+        /// <returns></returns>
+        public static string Encode(object value)
+        {
+            var sanitized = value != null ? HttpUtility.UrlEncode(value.ToString()) : null;
+            return sanitized;
         }
 
         /// <summary>

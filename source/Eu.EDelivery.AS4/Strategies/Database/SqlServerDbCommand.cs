@@ -8,13 +8,15 @@ using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
     internal class SqlServerDbCommand : IAS4DbCommand
     {
         private readonly DatastoreContext _context;
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         // TODO: this is kind of similiar to the 'DatastoreTable' class
         private readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> _tablesByName = 
@@ -111,7 +113,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             // The TotalDays of the TimeSpan is an integer.
             int rows = _context.Database.ExecuteSqlCommand(sql);
 #pragma warning restore EF1000 // Possible SQL injection vulnerability.
-            LogManager.GetCurrentClassLogger().Trace($"Cleaned {rows} row(s) for table '{tableName}'");
+            Logger.Trace($"Cleaned {rows} row(s) for table '{tableName}'");
         }
 
         /// <summary>

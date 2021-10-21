@@ -2,11 +2,12 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     {
         public const string Key = "HTTP";
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
         private readonly IHttpClient _httpClient;
 
         [Info("Destination URL", required: true)]
@@ -84,13 +85,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                     $"{nameof(HttpSender)} requires a ContentType to correctly deliver the message");
             }
 
-            Logger.Info($"(Deliver)[{envelope.Message.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
+            Logger.Info($"(Deliver)[{Config.Encode(envelope.Message.MessageInfo.MessageId)}] Send DeliverMessage to {Config.Encode(Location)}");
 
             HttpWebRequest request = await CreateHttpPostRequest(envelope.ContentType, envelope.SerializeMessage()).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             HttpStatusCode statusCode = response?.StatusCode ?? HttpStatusCode.InternalServerError;
-            Logger.Debug($"POST DeliverMessage to {Location} result in: {(int)statusCode} {response?.StatusCode}");
+            Logger.Debug($"POST DeliverMessage to {Config.Encode(Location)}  result in:  {Config.Encode((int)statusCode)}");
 
             response?.Close();
             return SendResultUtils.DetermineSendResultFromHttpResonse(statusCode);
@@ -119,7 +120,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                     $"{nameof(HttpSender)} requires a NotifyMessage as a series of bytes to correctly notify the message");
             }
 
-            Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
+            Logger.Info($"(Notify)[{Config.Encode(notifyMessage.MessageInfo.MessageId)}] Send Notification to {Config.Encode(Location)}");
 
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
@@ -176,7 +177,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 detectEncodingFromByteOrderMarks: true))
             {
                 Logger.Error(
-                    $"Unexpected response received for http notification: {response.StatusCode}, {streamReader.ReadToEnd()}");
+                    $"Unexpected response received for http notification: {Config.Encode(response.StatusCode)}, {Config.Encode(streamReader.ReadToEnd())}");
             }
         }
 

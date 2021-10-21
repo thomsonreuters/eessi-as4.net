@@ -8,7 +8,9 @@ using Eu.EDelivery.AS4.Receivers.Http.Get;
 using Eu.EDelivery.AS4.Receivers.Http.Post;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
-using NLog;
+using log4net;
+using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Common;
 
 namespace Eu.EDelivery.AS4.Receivers.Http
 {
@@ -21,7 +23,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         private readonly string _contentType;
         private readonly Func<HttpListenerResponse, Task> _writeToAsync;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         internal HttpResult(
             HttpStatusCode status,
@@ -152,11 +154,8 @@ namespace Eu.EDelivery.AS4.Receivers.Http
             }
             catch (Exception exception)
             {
-                Logger.Error($"An error occured while writing the Response to the ResponseStream: {exception.Message}");
-                if (Logger.IsTraceEnabled)
-                {
-                    Logger.Trace(exception.StackTrace);
-                }
+                Logger.Error($"An error occured while writing the Response to the ResponseStream: {Config.Encode(exception.Message)}");
+                Logger.Trace(Config.Encode(exception.StackTrace));
 
                 throw;
             }

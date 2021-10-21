@@ -1,12 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -20,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         "so that it can be processed (signed, encrypted, …) afterwards.")]
     public class StoreAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         // TODO: this class should be reviewed IMHO.  We should not save AS4Messages, but we should
         // save the MessagePart in the OutMessage table.  Each MessagePart has its own messagebody.
@@ -86,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 var repository = new DatastoreRepository(context);
                 var service = new OutMessageService(_config, repository, _messageBodyStore);
-                service.InsertAS4Message(
+                var outMessages =  service.InsertAS4Message(
                     messagingContext.AS4Message,
                     messagingContext.SendingPMode,
                     messagingContext.ReceivingPMode);
@@ -94,6 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 try
                 {
                     await context.SaveChangesAsync().ConfigureAwait(false);
+                    messagingContext.OutMessage = outMessages.First();
                 }
                 catch
                 {

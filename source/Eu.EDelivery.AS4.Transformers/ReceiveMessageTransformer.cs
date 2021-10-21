@@ -14,7 +14,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
+using log4net;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Transformers
     {
         private readonly IConfig _config;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         private IDictionary<string, string> _properties;
 
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 Logger.Error(
                     "Static Receive configuration doesn't allow receiving signal messages. " +
-                    $"Please remove the static configured Receiving PMode: {ReceivingPMode} to also receive signal messages");
+                    $"Please remove the static configured Receiving PMode: {Config.Encode(ReceivingPMode)} to also receive signal messages");
 
                 throw new InvalidMessageException(
                     "Static Receive configuration doesn't allow receiving signal messages. ");
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (as4Message.PrimaryMessageUnit != null)
             {
-                Logger.Info($"(Receive) Receiving AS4Message -> {as4Message.PrimaryMessageUnit.GetType().Name} {as4Message.PrimaryMessageUnit.MessageId}"); 
+                Logger.Info($"(Receive) Receiving AS4Message -> {Config.Encode(as4Message.PrimaryMessageUnit.GetType().Name)} {Config.Encode(as4Message.PrimaryMessageUnit.MessageId)}"); 
             }
 
             var context = new MessagingContext(as4Message, rm, MessagingContextMode.Receive);
@@ -121,8 +121,8 @@ namespace Eu.EDelivery.AS4.Transformers
                 else
                 {
                     Logger.Error(
-                        $"ReceivingPMode with Id: {ReceivingPMode} was configured as default PMode, but this PMode cannot be found in the configured receiving PModes."
-                        + $"{Environment.NewLine} Configured Receiving PModes are placed on the folder: '.\\config\\receive-pmodes\\'.");
+                        $"ReceivingPMode with Id: {Config.Encode(ReceivingPMode)} was configured as default PMode, but this PMode cannot be found in the configured receiving PModes."
+                        + $"{Config.Encode(Environment.NewLine)} Configured Receiving PModes are placed on the folder: '.\\config\\receive-pmodes\\'.");
 
                     var errorResult = new ErrorResult(
                         "Static configured ReceivingPMode cannot be found", 
@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                Logger.Error(Config.Encode(ex));
 
                 throw new InvalidMessageException(
                     "The incoming stream is not an ebMS Message, " +
