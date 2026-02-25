@@ -24,7 +24,9 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 ## Documentation
 
-A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
+A configuration- and usermanual can be found [online](https://ec.europa.eu/digital-building-blocks/sites/spaces/EDELCOMMUNITY/pages/52603783/AS4.NET).
+
+
 
 ## Features
 

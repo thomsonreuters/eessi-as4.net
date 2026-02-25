@@ -1,162 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F82AAC30-6DDC-442C-849D-5DDD0478893B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eu.EDelivery.AS4.IntegrationTests</RootNamespace>
-    <AssemblyName>Eu.EDelivery.AS4.IntegrationTests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <DependsOnNETStandard>true</DependsOnNETStandard>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\output\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\output\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Xml" />
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Common\AS4Component.cs" />
-    <Compile Include="Common\DatastoreSpy.cs" />
-    <Compile Include="Common\FileSystemService.cs" />
-    <Compile Include="Common\Holodeck.cs" />
-    <Compile Include="Common\PollingService.cs" />
-    <Compile Include="Common\StubSender.cs" />
-    <Compile Include="Fixture\HolodeckFixture.cs" />
-    <Compile Include="Common\HolodeckLocations.cs" />
-    <Compile Include="Fixture\HolodeckMessage.cs" />
-    <Compile Include="Fixture\ParentProcess.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Negative Receive Scenarios\ReceiveAS4MessageResultInErrors.cs" />
-    <Compile Include="Negative Send Scenarios\SendAS4MessageResultInErrors.cs" />
-    <Compile Include="Negative Send Scenarios\SendSubmitMessageResultInExceptions.cs" />
-    <Compile Include="Positive Receive Scenarios\ReceiveAS4MessageResultInDeliverable.cs" />
-    <Compile Include="Positive Receive Scenarios\SpyHttpDeliverTarget.cs" />
-    <Compile Include="Positive Receive Scenarios\ReceiveAS4MessageResultInReceipt.cs" />
-    <Compile Include="Positive Send Scenarios\SendAS4MessageResultInError.cs" />
-    <Compile Include="Positive Send Scenarios\SendAS4MessageViaDynamicForwarding.cs" />
-    <Compile Include="Common\IntegrationTestTemplate.cs" />
-    <Compile Include="Positive Send Scenarios\SendAS4MessageResultInReceipt.cs" />
-    <Compile Include="Positive Send Scenarios\SendAS4MessageViaPulling.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\as4-soap-wrong-signed-callback-message.txt" />
-    <Content Include="Resources\as4-soap-wrong-signed-message.txt" />
-    <Content Include="Resources\as4-soap-wrong-encrypted-message.txt" />
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="Resources\8.1.21-message.xml" />
-    <None Include="Resources\8.1.22-message.as4" />
-    <None Include="Resources\AccessPointB.cer" />
-    <None Include="Resources\as4message_external_payloads.txt" />
-    <None Include="Resources\as4message_missing_mime_property.txt" />
-    <None Include="Resources\as4message_incorect_compressed.txt" />
-    <None Include="Resources\as4message.txt" />
-    <None Include="Resources\earth.jpg" />
-    <None Include="Resources\pdf-document.pdf" />
-    <None Include="Resources\_8_1_22_message.as4" />
-    <None Include="Scripts\change-ip-in-pmode.ps1" />
-    <None Include="Scripts\start-as4-component-application.ps1" />
-    <None Include="Scripts\stop-as4-component-application.ps1" />
-    <None Include="Scripts\xunit-runner-console.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
-      <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
-      <Name>Eu.EDelivery.AS4</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>10.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="NLog">
-      <Version>4.3.5</Version>
-    </PackageReference>
-    <PackageReference Include="SimpleHttpMock">
-      <Version>1.1.5</Version>
-    </PackageReference>
-    <PackageReference Include="xunit">
-      <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.analyzers">
-      <Version>0.8.0</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.assert">
-      <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.core">
-      <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.extensibility.core">
-      <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.extensibility.execution">
-      <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.runner.visualstudio">
-      <Version>2.3.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net462</TargetFramework>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<OutputPath>..\..\output\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="System.Management" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+		<PackageReference Include="NLog" Version="4.3.5" />
+		<PackageReference Include="SimpleHttpMock" Version="1.1.5" />
+		<PackageReference Include="xunit" Version="2.3.1" />
+		<PackageReference Include="xunit.abstractions" Version="2.0.1" />
+		<PackageReference Include="xunit.analyzers" Version="0.8.0" />
+		<PackageReference Include="xunit.assert" Version="2.3.1" />
+		<PackageReference Include="xunit.core" Version="2.3.1" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.3.1" />
+		<PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj" />
+	</ItemGroup>
 </Project>
